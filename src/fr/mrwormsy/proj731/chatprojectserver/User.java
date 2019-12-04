@@ -103,6 +103,11 @@ public class User implements RemoteClient {
 		return null;
 	}
 
+	@Override
+	public void startServerWith(String friend) throws RemoteException {
+
+	}
+
 	public void setUsername(String username) {
 		this.username = username;
 	}

@@ -20,4 +20,6 @@ public interface RemoteClient extends Remote {
 	void updateOnlinePlayers() throws RemoteException;
 
 	ArrayList<String> getOnlinePersons() throws RemoteException;
+
+	void startServerWith(String friend) throws RemoteException;
 }

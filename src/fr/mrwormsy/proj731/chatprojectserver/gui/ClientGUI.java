@@ -224,6 +224,14 @@ public class ClientGUI extends JFrame {
 		peopleMenu.add(dummyUser);
 
 		JMenuItem startConversation = new JMenuItem("Start Conversation");
+		startConversation.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
+
+
 		dummyUser.add(startConversation);
 	}
 
