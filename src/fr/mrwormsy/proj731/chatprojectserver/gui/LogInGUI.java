@@ -47,6 +47,7 @@ public class LogInGUI {
 
 		// The group layout
 
+		
 		JButton logInButton = new JButton("Log In");
 		logInButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
