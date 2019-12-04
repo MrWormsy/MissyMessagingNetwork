@@ -18,7 +18,7 @@ public class ChatClient {
 		try {
 
 			// Getting the registry
-			registry = LocateRegistry.getRegistry(1888);
+			registry = LocateRegistry.getRegistry("localhost", 1888);
 			theServer = (RemoteServer) registry.lookup("server");
 
 			// We create the user

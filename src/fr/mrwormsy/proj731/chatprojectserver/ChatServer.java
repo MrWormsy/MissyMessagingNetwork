@@ -21,7 +21,6 @@ public class ChatServer {
 			registry = LocateRegistry.createRegistry(1888);
 			theServer = new Server();
 			RemoteServer chat = (RemoteServer) UnicastRemoteObject.exportObject(theServer, 0);
-			
 			registry.bind("server", chat);
 		} catch (RemoteException | AlreadyBoundException e) {
 			e.printStackTrace();
