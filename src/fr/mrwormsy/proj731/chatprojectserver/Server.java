@@ -53,7 +53,8 @@ public class Server implements RemoteServer {
 			ArrayList<String> onlines = getAllOnlinePlayers();
 
 			for (RemoteClient rc : this.users) {
-				rc.updateOnlinePlayers(onlines);
+				// TODO CHANGED HERE
+				//rc.updateOnlinePlayers(onlines);
 			}
 
 		} catch (NotBoundException e) {
@@ -71,7 +72,8 @@ public class Server implements RemoteServer {
 			ArrayList<String> onlines = getAllOnlinePlayers();
 
 			for (RemoteClient rc : this.users) {
-				rc.updateOnlinePlayers(onlines);
+				// TODO CHANGED HERE
+				//rc.updateOnlinePlayers(onlines);
 			}
 
 			return true;

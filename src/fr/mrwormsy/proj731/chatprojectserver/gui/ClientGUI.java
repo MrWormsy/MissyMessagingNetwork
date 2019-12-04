@@ -1,6 +1,7 @@
 package fr.mrwormsy.proj731.chatprojectserver.gui;
 
 import fr.mrwormsy.proj731.chatprojectserver.ChatClient;
+import fr.mrwormsy.proj731.chatprojectserver.ClientMain;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 public class ClientGUI extends JFrame {
 
@@ -23,6 +25,9 @@ public class ClientGUI extends JFrame {
 	private JPanel sendPanel;
 	private JScrollPane displayScrollPanel;
 	private JComboBox<String> onlineUsers;
+
+	private JMenu peopleMenu;
+	private ArrayList<JMenu> peoples;
 
 	private ClientGUI clientGUI;
 
@@ -52,8 +57,8 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void windowClosed(WindowEvent windowEvent) {
 				try {
-					System.out.println(ChatClient.getTheUser().getUsername() + " Logged Out");
-					ChatClient.getTheUser().logOut();
+					System.out.println(ClientMain.getTheClient().getUsername() + " Logged Out");
+					ClientMain.getTheClient().logOut();
 
 					// TODO EXIT ?
 					System.exit(0);
@@ -85,6 +90,8 @@ public class ClientGUI extends JFrame {
 		this.writeAndSendPanel.setPreferredSize(new Dimension(10, 10));
 		this.sendPanel = new JPanel();
 
+
+		// Menu menu
 		JMenuBar menuBar = new JMenuBar();
 		this.setJMenuBar(menuBar);
 
@@ -118,9 +125,9 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					System.out.println(ChatClient.getTheUser().getUsername() + " Logged Out");
+					System.out.println(ClientMain.getTheClient().getUsername() + " Logged Out");
 
-					ChatClient.getTheUser().logOut();
+					ClientMain.getTheClient().logOut();
 				} catch (RemoteException e1) {
 					e1.printStackTrace();
 				}
@@ -129,6 +136,22 @@ public class ClientGUI extends JFrame {
 				System.exit(0);
 			}
 		});
+
+
+		// Peoples menu
+
+		peopleMenu = new JMenu("Peoples");
+		menuBar.add(peopleMenu);
+
+		peoples = new ArrayList<JMenu>();
+
+		// Conversations menu
+
+		JMenu conversationsMenu = new JMenu("Conversations");
+		menuBar.add(conversationsMenu);
+
+
+
 
 		// We are now using a GroupLayout which is pretty hard to explain and to deal
 		// with, but we finally succeed :D
@@ -153,7 +176,12 @@ public class ClientGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// If the message contains something
 				if (!chatWritter.getText().isEmpty()) {
+
+					// TODO OLD ISSUE
+					/*
 					try {
+
+
 
 
 						// If it return false that means that the message could not be sent and thus the receiver does not exists
@@ -163,9 +191,15 @@ public class ClientGUI extends JFrame {
 							logMessage("User does not exists");
 						}
 
+
+
 					} catch (RemoteException e1) {
 						e1.printStackTrace();
 					}
+
+					*/
+
+					System.out.println("I've removed this part check todos");
 
 					// We reset the text of the chat writter
 					chatWritter.setText("");
@@ -175,6 +209,35 @@ public class ClientGUI extends JFrame {
 
 		// We set a default button, thanks to this we only need to press enter and the message will be sent
 		this.writeAndSendPanel.getRootPane().setDefaultButton(this.sendMessageButton);
+	}
+
+	// TODO IMPORTANT HERE
+	public void createPeopleForMenuByName(String name) {
+
+		// We create a user menu
+		JMenu dummyUser = new JMenu(name);
+
+		// And we add it to the list of users
+		peoples.add(dummyUser);
+
+		// And we add it to the main menu
+		peopleMenu.add(dummyUser);
+
+		JMenuItem startConversation = new JMenuItem("Start Conversation");
+		dummyUser.add(startConversation);
+	}
+
+	// Return true if a person is already in the menu (not to add it twice)
+	public boolean isUserAlreadyInPeopleMenu(String name) {
+
+		for(JMenu jMenu : peoples) {
+			if (jMenu.getText().equalsIgnoreCase(name)) {
+				return true;
+			}
+		}
+
+		return false;
+
 	}
 
 	private void logMessage(String message) {
@@ -265,4 +328,6 @@ public class ClientGUI extends JFrame {
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
+
 }

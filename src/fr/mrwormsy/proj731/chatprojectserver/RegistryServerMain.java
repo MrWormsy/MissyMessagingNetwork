@@ -1,9 +1,6 @@
 package fr.mrwormsy.proj731.chatprojectserver;
 
-import java.rmi.AccessException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 
 public class RegistryServerMain {
 
@@ -13,7 +10,12 @@ public class RegistryServerMain {
 
 
         while (true) {
-            
+
+            System.out.println("------------------------------");
+            for (String string : registryServer.registry.list()) {
+                System.out.println(string);
+            }
+
         }
     }
 

@@ -83,7 +83,9 @@ public class User implements RemoteClient {
 	}
 
 	@Override
-	public void updateOnlinePlayers(ArrayList<String> onlines) throws RemoteException {
+	public void updateOnlinePlayers() throws RemoteException {
+
+		ArrayList<String> onlines = null;
 		DefaultComboBoxModel model = (DefaultComboBoxModel) this.clientGUI.getOnlineUsers().getModel();
 		model.removeAllElements();
 
@@ -94,6 +96,11 @@ public class User implements RemoteClient {
 		}
 
 		this.clientGUI.getOnlineUsers().setModel(model);
+	}
+
+	@Override
+	public ArrayList<String> getOnlinePersons() throws RemoteException {
+		return null;
 	}
 
 	public void setUsername(String username) {

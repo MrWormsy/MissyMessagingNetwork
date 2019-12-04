@@ -1,6 +1,7 @@
 package fr.mrwormsy.proj731.chatprojectserver.gui;
 
 import fr.mrwormsy.proj731.chatprojectserver.ChatClient;
+import fr.mrwormsy.proj731.chatprojectserver.ClientMain;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.swing.*;
@@ -58,7 +59,12 @@ public class LogInGUI {
 
 				// TODO CHECK IN THE DATABASE IF THE USER HAS THE GOOD CREDENCIALS
 				try {
-					ChatClient.getTheUser().logIn(usernameInput.getText(), md5HexPass);
+
+					// TODO OLD ISSUE HERE
+					//ChatClient.getTheUser().logIn(usernameInput.getText(), md5HexPass);
+
+					ClientMain.getTheClient().logIn(usernameInput.getText(), md5HexPass);
+
 					frame.dispose();
 				} catch (RemoteException e1) {
 					e1.printStackTrace();
