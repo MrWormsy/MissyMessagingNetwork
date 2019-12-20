@@ -1,7 +1,8 @@
 package fr.mrwormsy.proj731.chatprojectserver.gui;
 
-import fr.mrwormsy.proj731.chatprojectserver.ChatClient;
+import fr.mrwormsy.proj731.chatprojectserver.Client;
 import fr.mrwormsy.proj731.chatprojectserver.ClientMain;
+import fr.mrwormsy.proj731.chatprojectserver.RemoteClient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,12 +32,18 @@ public class ClientGUI extends JFrame {
 
 	private ClientGUI clientGUI;
 
+	private RemoteClient client;
+
 	// The password which is hashed with md5
 	private String username;
 	private String password;
 
+	private String currentConversation;
+
 	// The constructor needs a bavard and a name
-	public ClientGUI() {
+	public ClientGUI(Client client) {
+
+		this.client = client;
 
 		// This is used to get the instance of the object inside the Listeners
 		setClientGUI(this);
@@ -57,8 +64,8 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void windowClosed(WindowEvent windowEvent) {
 				try {
-					System.out.println(ClientMain.getTheClient().getUsername() + " Logged Out");
-					ClientMain.getTheClient().logOut();
+					System.out.println(client.getUsername() + " Logged Out");
+					client.logOut();
 
 					// TODO EXIT ?
 					System.exit(0);
@@ -125,9 +132,9 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					System.out.println(ClientMain.getTheClient().getUsername() + " Logged Out");
+					System.out.println(client.getUsername() + " Logged Out");
 
-					ClientMain.getTheClient().logOut();
+					client.logOut();
 				} catch (RemoteException e1) {
 					e1.printStackTrace();
 				}
@@ -199,7 +206,14 @@ public class ClientGUI extends JFrame {
 
 					*/
 
-					System.out.println("I've removed this part check todos");
+					// System.out.println("I've removed this part check todos");
+
+					// We want to send a message to the selected conversation
+					try {
+						client.getLocalServers().get(currentConversation).sendMessage(username, chatWritter.getText());
+					} catch (RemoteException ex) {
+						ex.printStackTrace();
+					}
 
 					// We reset the text of the chat writter
 					chatWritter.setText("");
@@ -228,7 +242,13 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-			}
+                try {
+                    client.startServerWith(name);
+                } catch (RemoteException e1) {
+                    e1.printStackTrace();
+                }
+
+            }
 		});
 
 
@@ -337,5 +357,11 @@ public class ClientGUI extends JFrame {
 		this.username = username;
 	}
 
+	public String getCurrentConversation() {
+		return currentConversation;
+	}
 
+	public void setCurrentConversation(String currentConversation) {
+		this.currentConversation = currentConversation;
+	}
 }

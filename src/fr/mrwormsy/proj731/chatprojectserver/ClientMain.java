@@ -17,7 +17,8 @@ public class ClientMain {
 
         registryServer = LocateRegistry.getRegistry("localhost", 22222);
 
-        theClient = new Client();
+        // We set the registry as a parameter because we will need him in the future (we thus have removed all the occurrences of ClientMain.registryServer...)
+        theClient = new Client(registryServer);
 
 
         // Check if the registry is available
@@ -44,6 +45,22 @@ public class ClientMain {
         long delay  = 0L;
         long period = 1000L;
         timer.scheduleAtFixedRate(lookingForPeopleTask, delay, period);
+
+        // Here we need to make a thread that is looking for other conversations every seconds
+        TimerTask lookingForConversationsTask = new TimerTask() {
+            public void run() {
+                try {
+                    theClient.updateMyConversations();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        timer = new Timer("lookingForConversationsTimer");
+
+        delay  = 0L;
+        period = 1000L;
+        timer.scheduleAtFixedRate(lookingForConversationsTask, delay, period);
     }
 
     public static Registry getRegistryServer() {
