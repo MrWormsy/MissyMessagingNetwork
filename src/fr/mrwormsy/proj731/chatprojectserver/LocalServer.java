@@ -30,6 +30,7 @@ public class LocalServer implements RemoteLocalServer {
         try {
 
             // TODO MAYBE HERE WE WILL GET A PROBLEM BECAUSE WE WILL CREATE SEVERAL REGISTERY ON THE SAME PORT AND I DONT THINK THIS WILL WORK
+            // YES WE GOT THAT PROBLEM
 
             registry = LocateRegistry.createRegistry(1888);
             registry.bind("LSERVER_" + id, UnicastRemoteObject.exportObject(this, 0));
@@ -51,8 +52,6 @@ public class LocalServer implements RemoteLocalServer {
     @Override
     public boolean sendMessage(String from, String message) throws RemoteException {
 
-        RemoteClient temp;
-
         for(RemoteClient friend : this.getUsers()) {
 
             if (from.equalsIgnoreCase(friend.getUsername())) {
@@ -62,7 +61,7 @@ public class LocalServer implements RemoteLocalServer {
                 friend.sendMessage(from, message);
             }
 
-            System.out.println("TEST TEST " + friend);
+            System.out.println("You receive a message from " + from);
 
         }
 

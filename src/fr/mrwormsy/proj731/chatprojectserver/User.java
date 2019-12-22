@@ -99,7 +99,17 @@ public class User implements RemoteClient {
 	}
 
 	@Override
+	public void updateMyConversations() throws RemoteException {
+
+	}
+
+	@Override
 	public ArrayList<String> getOnlinePersons() throws RemoteException {
+		return null;
+	}
+
+	@Override
+	public ArrayList<String> getMyConversations() throws RemoteException {
 		return null;
 	}
 

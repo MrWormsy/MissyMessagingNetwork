@@ -7,9 +7,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 public class Client implements RemoteClient {
     private ClientGUI clientGUI;
@@ -64,6 +62,9 @@ public class Client implements RemoteClient {
 
         */
 
+        // Change the title of the windows because we want the username as the title
+        this.clientGUI.setTitle(username);
+
         // HERE WE NEED TO BE CAREFUL BECAUSE WE DO NOT LINK THE USER WITH ITS NAME BUT WITH USER_user's name
 
         try {
@@ -88,6 +89,9 @@ public class Client implements RemoteClient {
         } catch (NotBoundException e) {
             //Here we do nothing because the person was not logged in
         }
+
+        // As we log out we set Logged out as the name of the window
+        this.clientGUI.setTitle("Logged out");
 
         /*
 
@@ -124,11 +128,11 @@ public class Client implements RemoteClient {
         for (String online : onlines) {
 
             // TODO UNCOMMENT THAT AFTER TESTS
-            //if (!online.equalsIgnoreCase(getUsername())) {
+            if (!online.equalsIgnoreCase(getUsername())) {
                 if (!clientGUI.isUserAlreadyInPeopleMenu(online)) {
                     clientGUI.createPeopleForMenuByName(online);
                 }
-            //}
+            }
         }
     }
 
@@ -143,7 +147,6 @@ public class Client implements RemoteClient {
             if (!clientGUI.isConversationsAlreadyInConversationsMenu(conv)) {
                 clientGUI.createConversationsForMenuByName(conv);
             }
-            //}
         }
     }
 
@@ -168,6 +171,7 @@ public class Client implements RemoteClient {
         // Here we get the list of people in the registry and then we return it
         ArrayList<String> conversations = new ArrayList<String>();
 
+        /*
         for(String online : serverRegistry.list()) {
 
             // Here we need to be carefull because we will get local servers not users and we need to separate them
@@ -176,6 +180,15 @@ public class Client implements RemoteClient {
                 conversations.add(online.replaceAll("LSERVER_", ""));
             }
         }
+        */
+
+        Iterator it = localServers.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            conversations.add((String) pair.getKey());
+        }
+
+
         return conversations;
     }
 
@@ -187,7 +200,8 @@ public class Client implements RemoteClient {
         RemoteLocalServer localServer = new LocalServer(randomUUID.toString(), this);
 
         // The first user we have in our conversation participants will be the host and then we send the others...
-        // TODO UNCOMMENT THIS IF TROUBLES this.localServers.put(randomUUID.toString(), localServer);
+        this.localServers.put(randomUUID.toString(), localServer);
+        localServer.getUsers().add(this);
 
         RemoteClient temp;
 
@@ -209,7 +223,6 @@ public class Client implements RemoteClient {
         System.out.println("SERVER " + randomUUID.toString() + " is up");
 
         clientGUI.setCurrentConversation(randomUUID.toString());
-
     }
 
     // Warn that this user has been invited to join a conversation and the boolean means whether the user has been successfully invited or not
@@ -218,6 +231,8 @@ public class Client implements RemoteClient {
 
         // Add the local server to the hashmap of the player
         this.localServers.put(serverSId, localServer);
+
+        this.clientGUI.setCurrentConversation(serverSId);
 
         return true;
     }

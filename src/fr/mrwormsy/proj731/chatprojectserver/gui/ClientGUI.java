@@ -30,6 +30,10 @@ public class ClientGUI extends JFrame {
 	private JMenu peopleMenu;
 	private ArrayList<JMenu> peoples;
 
+	private JMenu conversationsMenu;
+	private ArrayList<JMenuItem> conversations;
+	private String currentConversation;
+
 	private ClientGUI clientGUI;
 
 	private RemoteClient client;
@@ -37,8 +41,6 @@ public class ClientGUI extends JFrame {
 	// The password which is hashed with md5
 	private String username;
 	private String password;
-
-	private String currentConversation;
 
 	// The constructor needs a bavard and a name
 	public ClientGUI(Client client) {
@@ -49,7 +51,7 @@ public class ClientGUI extends JFrame {
 		setClientGUI(this);
 
 		// Basic things
-		this.setTitle("Chat");
+		this.setTitle("Logged Out");
 		this.setSize(600, 400);
 		this.setLocationRelativeTo(null);
 		this.setResizable(false);
@@ -154,10 +156,10 @@ public class ClientGUI extends JFrame {
 
 		// Conversations menu
 
-		JMenu conversationsMenu = new JMenu("Conversations");
+		conversationsMenu = new JMenu("Conversations");
 		menuBar.add(conversationsMenu);
 
-
+		conversations = new ArrayList<JMenuItem>();
 
 
 		// We are now using a GroupLayout which is pretty hard to explain and to deal
@@ -210,7 +212,15 @@ public class ClientGUI extends JFrame {
 
 					// We want to send a message to the selected conversation
 					try {
-						client.getLocalServers().get(currentConversation).sendMessage(username, chatWritter.getText());
+
+						// We check id the sever exists
+						if (client.getLocalServers().containsKey(currentConversation)) {
+							client.getLocalServers().get(currentConversation).sendMessage(username, chatWritter.getText());
+						} else {
+							System.out.println("This server does not exists...");
+						}
+
+
 					} catch (RemoteException ex) {
 						ex.printStackTrace();
 					}
@@ -266,6 +276,38 @@ public class ClientGUI extends JFrame {
 
 		return false;
 
+	}
+
+	public boolean isConversationsAlreadyInConversationsMenu(String conv) {
+		for(JMenuItem jMenuItem : conversations) {
+			if (jMenuItem.getText().equalsIgnoreCase(conv)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public void createConversationsForMenuByName(String conv) {
+
+		// We create a conv menu
+		JMenuItem dummyConv = new JMenuItem(conv);
+
+		// And we add it to the list of conversations
+		conversations.add(dummyConv);
+
+		// And we add it to the main menu
+		conversationsMenu.add(dummyConv);
+
+		dummyConv.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				System.out.println(conv);
+
+				setCurrentConversation(conv);
+			}
+		});
 	}
 
 	private void logMessage(String message) {

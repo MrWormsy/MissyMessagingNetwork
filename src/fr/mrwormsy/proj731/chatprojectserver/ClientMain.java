@@ -41,10 +41,7 @@ public class ClientMain {
             }
         };
         Timer timer = new Timer("lookingForPeopleTimer");
-
-        long delay  = 0L;
-        long period = 1000L;
-        timer.scheduleAtFixedRate(lookingForPeopleTask, delay, period);
+        timer.scheduleAtFixedRate(lookingForPeopleTask, 0, 1000L);
 
         // Here we need to make a thread that is looking for other conversations every seconds
         TimerTask lookingForConversationsTask = new TimerTask() {
@@ -56,11 +53,8 @@ public class ClientMain {
                 }
             }
         };
-        timer = new Timer("lookingForConversationsTimer");
-
-        delay  = 0L;
-        period = 1000L;
-        timer.scheduleAtFixedRate(lookingForConversationsTask, delay, period);
+        Timer timer2 = new Timer("lookingForConversationsTimer");
+        timer2.scheduleAtFixedRate(lookingForConversationsTask, 0, 1000L);
     }
 
     public static Registry getRegistryServer() {
