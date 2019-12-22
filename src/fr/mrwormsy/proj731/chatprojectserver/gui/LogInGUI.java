@@ -1,25 +1,14 @@
 package fr.mrwormsy.proj731.chatprojectserver.gui;
 
-import java.awt.HeadlessException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-
+import fr.mrwormsy.proj731.chatprojectserver.ChatClient;
+import fr.mrwormsy.proj731.chatprojectserver.ClientMain;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import fr.mrwormsy.inf641.epapotage.EPapotage;
-import fr.mrwormsy.proj731.chatprojectserver.ChatClient;
-import fr.mrwormsy.proj731.chatprojectserver.RemoteClient;
+import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 
 public class LogInGUI {
 
@@ -47,6 +36,7 @@ public class LogInGUI {
 
 		// The group layout
 
+
 		JButton logInButton = new JButton("Log In");
 		logInButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -69,7 +59,12 @@ public class LogInGUI {
 
 				// TODO CHECK IN THE DATABASE IF THE USER HAS THE GOOD CREDENCIALS
 				try {
-					ChatClient.getTheUser().logIn(usernameInput.getText(), md5HexPass);
+
+					// TODO OLD ISSUE HERE
+					//ChatClient.getTheUser().logIn(usernameInput.getText(), md5HexPass);
+
+					ClientMain.getTheClient().logIn(usernameInput.getText(), md5HexPass);
+
 					frame.dispose();
 				} catch (RemoteException e1) {
 					e1.printStackTrace();

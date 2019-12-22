@@ -1,0 +1,15 @@
+.classpath
+.idea/.gitignore
+.idea/artifacts/ChatClient.xml
+.idea/artifacts/ChatServer.xml
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/uiDesigner.xml
+.idea/vcs.xml
+.project
+.settings/
+ChatProjectServer.iml
+bin/
+out/
+

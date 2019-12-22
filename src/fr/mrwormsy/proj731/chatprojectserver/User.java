@@ -20,7 +20,7 @@ public class User implements RemoteClient {
 		this.username = "";
 		this.password = "";
 
-		clientGUI = new ClientGUI();
+		//clientGUI = new ClientGUI(this);
 		clientGUI.setVisible(true);
 	}
 
@@ -83,7 +83,9 @@ public class User implements RemoteClient {
 	}
 
 	@Override
-	public void updateOnlinePlayers(ArrayList<String> onlines) throws RemoteException {
+	public void updateOnlinePlayers() throws RemoteException {
+
+		ArrayList<String> onlines = null;
 		DefaultComboBoxModel model = (DefaultComboBoxModel) this.clientGUI.getOnlineUsers().getModel();
 		model.removeAllElements();
 
@@ -94,6 +96,31 @@ public class User implements RemoteClient {
 		}
 
 		this.clientGUI.getOnlineUsers().setModel(model);
+	}
+
+	@Override
+	public void updateMyConversations() throws RemoteException {
+
+	}
+
+	@Override
+	public ArrayList<String> getOnlinePersons() throws RemoteException {
+		return null;
+	}
+
+	@Override
+	public ArrayList<String> getMyConversations() throws RemoteException {
+		return null;
+	}
+
+	@Override
+	public void startServerWith(String... friend) throws RemoteException {
+
+	}
+
+	@Override
+	public boolean sendInvitationToServer(String serverSId, RemoteLocalServer localServer) throws RemoteException {
+		return false;
 	}
 
 	public void setUsername(String username) {

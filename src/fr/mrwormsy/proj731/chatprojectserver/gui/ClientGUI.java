@@ -1,6 +1,8 @@
 package fr.mrwormsy.proj731.chatprojectserver.gui;
 
-import fr.mrwormsy.proj731.chatprojectserver.ChatClient;
+import fr.mrwormsy.proj731.chatprojectserver.Client;
+import fr.mrwormsy.proj731.chatprojectserver.ClientMain;
+import fr.mrwormsy.proj731.chatprojectserver.RemoteClient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 public class ClientGUI extends JFrame {
 
@@ -24,20 +27,31 @@ public class ClientGUI extends JFrame {
 	private JScrollPane displayScrollPanel;
 	private JComboBox<String> onlineUsers;
 
+	private JMenu peopleMenu;
+	private ArrayList<JMenu> peoples;
+
+	private JMenu conversationsMenu;
+	private ArrayList<JMenuItem> conversations;
+	private String currentConversation;
+
 	private ClientGUI clientGUI;
+
+	private RemoteClient client;
 
 	// The password which is hashed with md5
 	private String username;
 	private String password;
 
 	// The constructor needs a bavard and a name
-	public ClientGUI() {
+	public ClientGUI(Client client) {
+
+		this.client = client;
 
 		// This is used to get the instance of the object inside the Listeners
 		setClientGUI(this);
 
 		// Basic things
-		this.setTitle("Chat");
+		this.setTitle("Logged Out");
 		this.setSize(600, 400);
 		this.setLocationRelativeTo(null);
 		this.setResizable(false);
@@ -52,8 +66,8 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void windowClosed(WindowEvent windowEvent) {
 				try {
-					System.out.println(ChatClient.getTheUser().getUsername() + " Logged Out");
-					ChatClient.getTheUser().logOut();
+					System.out.println(client.getUsername() + " Logged Out");
+					client.logOut();
 
 					// TODO EXIT ?
 					System.exit(0);
@@ -85,6 +99,8 @@ public class ClientGUI extends JFrame {
 		this.writeAndSendPanel.setPreferredSize(new Dimension(10, 10));
 		this.sendPanel = new JPanel();
 
+
+		// Menu menu
 		JMenuBar menuBar = new JMenuBar();
 		this.setJMenuBar(menuBar);
 
@@ -118,9 +134,9 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					System.out.println(ChatClient.getTheUser().getUsername() + " Logged Out");
+					System.out.println(client.getUsername() + " Logged Out");
 
-					ChatClient.getTheUser().logOut();
+					client.logOut();
 				} catch (RemoteException e1) {
 					e1.printStackTrace();
 				}
@@ -129,6 +145,22 @@ public class ClientGUI extends JFrame {
 				System.exit(0);
 			}
 		});
+
+
+		// Peoples menu
+
+		peopleMenu = new JMenu("Peoples");
+		menuBar.add(peopleMenu);
+
+		peoples = new ArrayList<JMenu>();
+
+		// Conversations menu
+
+		conversationsMenu = new JMenu("Conversations");
+		menuBar.add(conversationsMenu);
+
+		conversations = new ArrayList<JMenuItem>();
+
 
 		// We are now using a GroupLayout which is pretty hard to explain and to deal
 		// with, but we finally succeed :D
@@ -153,7 +185,12 @@ public class ClientGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// If the message contains something
 				if (!chatWritter.getText().isEmpty()) {
+
+					// TODO OLD ISSUE
+					/*
 					try {
+
+
 
 
 						// If it return false that means that the message could not be sent and thus the receiver does not exists
@@ -163,8 +200,29 @@ public class ClientGUI extends JFrame {
 							logMessage("User does not exists");
 						}
 
+
+
 					} catch (RemoteException e1) {
 						e1.printStackTrace();
+					}
+
+					*/
+
+					// System.out.println("I've removed this part check todos");
+
+					// We want to send a message to the selected conversation
+					try {
+
+						// We check id the sever exists
+						if (client.getLocalServers().containsKey(currentConversation)) {
+							client.getLocalServers().get(currentConversation).sendMessage(username, chatWritter.getText());
+						} else {
+							System.out.println("This server does not exists...");
+						}
+
+
+					} catch (RemoteException ex) {
+						ex.printStackTrace();
 					}
 
 					// We reset the text of the chat writter
@@ -175,6 +233,81 @@ public class ClientGUI extends JFrame {
 
 		// We set a default button, thanks to this we only need to press enter and the message will be sent
 		this.writeAndSendPanel.getRootPane().setDefaultButton(this.sendMessageButton);
+	}
+
+	// TODO IMPORTANT HERE
+	public void createPeopleForMenuByName(String name) {
+
+		// We create a user menu
+		JMenu dummyUser = new JMenu(name);
+
+		// And we add it to the list of users
+		peoples.add(dummyUser);
+
+		// And we add it to the main menu
+		peopleMenu.add(dummyUser);
+
+		JMenuItem startConversation = new JMenuItem("Start Conversation");
+		startConversation.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+                try {
+                    client.startServerWith(name);
+                } catch (RemoteException e1) {
+                    e1.printStackTrace();
+                }
+
+            }
+		});
+
+
+		dummyUser.add(startConversation);
+	}
+
+	// Return true if a person is already in the menu (not to add it twice)
+	public boolean isUserAlreadyInPeopleMenu(String name) {
+
+		for(JMenu jMenu : peoples) {
+			if (jMenu.getText().equalsIgnoreCase(name)) {
+				return true;
+			}
+		}
+
+		return false;
+
+	}
+
+	public boolean isConversationsAlreadyInConversationsMenu(String conv) {
+		for(JMenuItem jMenuItem : conversations) {
+			if (jMenuItem.getText().equalsIgnoreCase(conv)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public void createConversationsForMenuByName(String conv) {
+
+		// We create a conv menu
+		JMenuItem dummyConv = new JMenuItem(conv);
+
+		// And we add it to the list of conversations
+		conversations.add(dummyConv);
+
+		// And we add it to the main menu
+		conversationsMenu.add(dummyConv);
+
+		dummyConv.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				System.out.println(conv);
+
+				setCurrentConversation(conv);
+			}
+		});
 	}
 
 	private void logMessage(String message) {
@@ -264,5 +397,13 @@ public class ClientGUI extends JFrame {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getCurrentConversation() {
+		return currentConversation;
+	}
+
+	public void setCurrentConversation(String currentConversation) {
+		this.currentConversation = currentConversation;
 	}
 }

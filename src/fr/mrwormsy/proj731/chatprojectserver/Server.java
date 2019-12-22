@@ -1,9 +1,7 @@
 package fr.mrwormsy.proj731.chatprojectserver;
 
-import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
 public class Server implements RemoteServer {
@@ -55,7 +53,8 @@ public class Server implements RemoteServer {
 			ArrayList<String> onlines = getAllOnlinePlayers();
 
 			for (RemoteClient rc : this.users) {
-				rc.updateOnlinePlayers(onlines);
+				// TODO CHANGED HERE
+				//rc.updateOnlinePlayers(onlines);
 			}
 
 		} catch (NotBoundException e) {
@@ -73,7 +72,8 @@ public class Server implements RemoteServer {
 			ArrayList<String> onlines = getAllOnlinePlayers();
 
 			for (RemoteClient rc : this.users) {
-				rc.updateOnlinePlayers(onlines);
+				// TODO CHANGED HERE
+				//rc.updateOnlinePlayers(onlines);
 			}
 
 			return true;

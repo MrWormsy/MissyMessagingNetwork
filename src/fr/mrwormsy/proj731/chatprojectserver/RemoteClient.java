@@ -17,5 +17,15 @@ public interface RemoteClient extends Remote {
 
 	void sendMessage(String from, String message) throws RemoteException;
 
-	void updateOnlinePlayers(ArrayList<String> onlines) throws RemoteException;
+	void updateOnlinePlayers() throws RemoteException;
+
+	void updateMyConversations() throws RemoteException;
+
+	ArrayList<String> getOnlinePersons() throws RemoteException;
+
+	ArrayList<String> getMyConversations() throws RemoteException;
+
+	void startServerWith(String... friend) throws RemoteException;
+
+	boolean sendInvitationToServer(String serverSId, RemoteLocalServer localServer) throws RemoteException;
 }

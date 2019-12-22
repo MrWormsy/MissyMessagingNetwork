@@ -1,6 +1,7 @@
 package fr.mrwormsy.proj731.chatprojectserver.gui;
 
 import fr.mrwormsy.proj731.chatprojectserver.ChatClient;
+import fr.mrwormsy.proj731.chatprojectserver.ClientMain;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.swing.*;
@@ -84,7 +85,9 @@ public class SignUpGUI {
 						// If the passwords are the same
 						if (md5HexConfirm.equals(md5HexPass)) {
 
-							ChatClient.getTheUser().createUserAccount(usernameInput.getText(), md5HexPass);
+							// TODO OLD ISSUE HERE
+							//ChatClient.getTheUser().createUserAccount(usernameInput.getText(), md5HexPass);
+							ClientMain.getTheClient().createUserAccount(usernameInput.getText(), md5HexPass);
 
 							JOptionPane.showMessageDialog(frame, "Your account has been added, you just have to login now");
 							frame.dispose();
