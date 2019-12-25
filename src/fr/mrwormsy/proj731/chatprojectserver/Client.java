@@ -10,19 +10,15 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
 public class Client implements RemoteClient {
-    private ClientGUI clientGUI;
-
-    private Registry serverRegistry;
-
-    RemoteClient remoteClient;
-
-    private String username;
-    private String password;
-
-    // To send messages to the server we only need the id of the server with who sent the message
-
     // Set of servers that i am the host... (The string is the conversation id : 5W6r8fUsy7rF)
     public HashMap<String, RemoteLocalServer> localServers;
+    RemoteClient remoteClient;
+    private ClientGUI clientGUI;
+    private Registry serverRegistry;
+    private String username;
+
+    // To send messages to the server we only need the id of the server with who sent the message
+    private String password;
 
     public Client(Registry registryServer) {
         this.username = "";
@@ -113,6 +109,12 @@ public class Client implements RemoteClient {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    //TODO WE NEED TO REMOVE THE GUYS WHO DECONNECTED AND THE CONVERSATIONS FROM THE MENU
+
     @Override
     public void sendMessage(String from, String message) throws RemoteException {
         clientGUI.writeMessage(from, message);
@@ -136,8 +138,6 @@ public class Client implements RemoteClient {
         }
     }
 
-    //TODO WE NEED TO REMOVE THE GUYS WHO DECONNECTED AND THE CONVERSATIONS FROM THE MENU
-
     @Override
     public void updateMyConversations() throws RemoteException {
 
@@ -155,7 +155,7 @@ public class Client implements RemoteClient {
         // Here we get the list of people in the registry and then we return it
         ArrayList<String> onlines = new ArrayList<String>();
 
-        for(String online : serverRegistry.list()) {
+        for (String online : serverRegistry.list()) {
 
             // Here we need to be carefull because we will get users not local servers and we need to separate them
             // If the string contains 'USER_' that means we got a user
@@ -184,7 +184,7 @@ public class Client implements RemoteClient {
 
         Iterator it = localServers.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
+            Map.Entry pair = (Map.Entry) it.next();
             conversations.add((String) pair.getKey());
         }
 
@@ -235,10 +235,6 @@ public class Client implements RemoteClient {
         this.clientGUI.setCurrentConversation(serverSId);
 
         return true;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {

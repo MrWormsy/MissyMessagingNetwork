@@ -1,7 +1,6 @@
 package fr.mrwormsy.proj731.chatprojectserver;
 
 import java.rmi.AlreadyBoundException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -32,6 +31,8 @@ public class LocalServer implements RemoteLocalServer {
             // TODO MAYBE HERE WE WILL GET A PROBLEM BECAUSE WE WILL CREATE SEVERAL REGISTERY ON THE SAME PORT AND I DONT THINK THIS WILL WORK
             // YES WE GOT THAT PROBLEM
 
+            // TODO WE WILL NEED TO FIND SOMETHING TO FIX THIS
+
             registry = LocateRegistry.createRegistry(1888);
             registry.bind("LSERVER_" + id, UnicastRemoteObject.exportObject(this, 0));
         } catch (RemoteException | AlreadyBoundException e) {
@@ -52,17 +53,13 @@ public class LocalServer implements RemoteLocalServer {
     @Override
     public boolean sendMessage(String from, String message) throws RemoteException {
 
-        for(RemoteClient friend : this.getUsers()) {
+        for (RemoteClient friend : this.getUsers()) {
 
             if (from.equalsIgnoreCase(friend.getUsername())) {
                 friend.sendMessage("You", message);
-            }
-            else {
+            } else {
                 friend.sendMessage(from, message);
             }
-
-            System.out.println("You receive a message from " + from);
-
         }
 
 

@@ -5,7 +5,7 @@
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/src/main/ressources/META-INF/MANIFEST.MF" />
       </element>
-      <element id="module-output" name="ChatProjectServer" />
+      <element id="module-output" name="RMIChatProject" />
       <element id="extracted-dir" path="X:/Projects/Minecraft/Sources/commons-codec-1.11.jar" path-in-jar="/" />
     </root>
   </artifact>
