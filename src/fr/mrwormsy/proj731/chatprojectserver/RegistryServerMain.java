@@ -8,7 +8,8 @@ public class RegistryServerMain {
     public static void main(String[] args) throws RemoteException {
         RegistryServer registryServer = new RegistryServer();
 
-        while (true) {}
+        while (true) {
+        }
     }
 
 }

@@ -36,4 +36,6 @@ public interface RemoteClient extends Remote {
     HashMap<String, RemoteLocalServer> getLocalServers() throws RemoteException;
 
     ClientGUI getClientGUI() throws RemoteException;
+
+    void addUserToTheConversation(String conv, String user) throws RemoteException;
 }

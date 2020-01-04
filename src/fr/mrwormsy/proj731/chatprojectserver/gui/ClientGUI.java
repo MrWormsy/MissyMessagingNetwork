@@ -1,6 +1,7 @@
 package fr.mrwormsy.proj731.chatprojectserver.gui;
 
 import fr.mrwormsy.proj731.chatprojectserver.Client;
+import fr.mrwormsy.proj731.chatprojectserver.ClientMain;
 import fr.mrwormsy.proj731.chatprojectserver.RemoteClient;
 
 import javax.swing.*;
@@ -243,7 +244,6 @@ public class ClientGUI extends JFrame {
             }
         });
 
-
         dummyUser.add(startConversation);
     }
 
@@ -272,6 +272,8 @@ public class ClientGUI extends JFrame {
 
     public void createConversationsForMenuByName(String conv) {
 
+        /*
+
         // We create a conv menu
         JMenuItem dummyConv = new JMenuItem(conv);
 
@@ -291,6 +293,81 @@ public class ClientGUI extends JFrame {
                 showConversation(conv);
             }
         });
+
+
+         */
+
+        // We create a conv menu
+        JMenu dummyConv = new JMenu(conv);
+
+        // And we add it to the list of conversations
+        conversations.add(dummyConv);
+
+        // And we add it to the main menu
+        conversationsMenu.add(dummyConv);
+
+        JMenuItem selectConversation = new JMenuItem("Select conversation");
+
+        selectConversation.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                // When we choose a conversation we need to set the current one to this one, change the title and show the conversation
+                setCurrentConversation(conv);
+                setTitle(username + " @ " + conv);
+                showConversation(conv);
+            }
+        });
+
+        JMenuItem addUserToConversation = new JMenuItem("Add user to conversation");
+
+        // Here we add a user to the given conversation (ONLY IF THE PERSON IS THE OWNER OF THE CONVERSATION)
+        addUserToConversation.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                // We need to gather all the users except the ones who are already in the conversation...
+                try {
+
+                    ArrayList<String> temp = new ArrayList<>();
+
+                    for (String theUser : client.getOnlinePersons()) {
+
+                        if (! client.getLocalServers().get(conv).containsUser(theUser) && ! theUser.equalsIgnoreCase(username)) {
+                            temp.add(theUser);
+                        }
+                    }
+
+                    String user = (String) JOptionPane.showInputDialog(null, "Add a user", "Add someone to this conversation",
+                            JOptionPane.QUESTION_MESSAGE, null, temp.toArray(), "");
+
+                    try {
+                        client.addUserToTheConversation(conv, user);
+                    } catch (RemoteException ex) {
+                        ex.printStackTrace();
+                    }
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+        });
+
+        JMenuItem quitConversation = new JMenuItem("Quit conversation");
+
+        quitConversation.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        dummyConv.add(selectConversation);
+
+        dummyConv.add(addUserToConversation);
+
+        dummyConv.add(quitConversation);
+
     }
 
     // Show the given conversation

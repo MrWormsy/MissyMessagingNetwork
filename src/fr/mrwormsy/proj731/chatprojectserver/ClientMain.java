@@ -37,7 +37,7 @@ public class ClientMain {
         TimerTask lookingForPeopleTask = new TimerTask() {
             public void run() {
                 try {
-                    if(isLoggedIn()) {
+                    if (isLoggedIn()) {
                         theClient.updateOnlinePlayers();
                     }
                 } catch (RemoteException e) {
@@ -52,7 +52,7 @@ public class ClientMain {
         TimerTask lookingForConversationsTask = new TimerTask() {
             public void run() {
                 try {
-                    if(isLoggedIn()) {
+                    if (isLoggedIn()) {
                         theClient.updateMyConversations();
                     }
                 } catch (RemoteException e) {

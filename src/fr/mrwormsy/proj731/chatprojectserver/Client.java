@@ -2,6 +2,7 @@ package fr.mrwormsy.proj731.chatprojectserver;
 
 import fr.mrwormsy.proj731.chatprojectserver.gui.ClientGUI;
 
+import javax.swing.*;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -258,6 +259,27 @@ public class Client implements RemoteClient {
         clientGUI.showConversation(serverSId);
 
         return true;
+    }
+
+    @Override
+    public void addUserToTheConversation(String conv, String user) throws RemoteException {
+
+        // Check if this user is the host of the host of Localserver
+        if (this.getLocalServers().get(conv).getHost() != this) {
+            JOptionPane.showMessageDialog(clientGUI, "You cannot add this user because you are not the host");
+            return;
+        }
+
+        try {
+            // We need to warn them that we have been added to this conversation with the conversation's id
+            RemoteClient temp = (RemoteClient) serverRegistry.lookup("USER_" + user);
+            temp.sendInvitationToServer(conv, this.localServers.get(conv));
+
+            // And add the user
+            this.localServers.get(conv).getUsers().add(temp);
+        } catch (Exception e) {
+            System.out.println("This user does not exists");
+        }
     }
 
     public String getPassword() {

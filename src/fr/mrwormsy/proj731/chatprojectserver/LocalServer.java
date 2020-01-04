@@ -7,7 +7,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class LocalServer implements RemoteLocalServer {
 
@@ -17,6 +18,7 @@ public class LocalServer implements RemoteLocalServer {
     public Registry registry;
 
     public String id;
+
     public RemoteClient host;
 
     public HashMap<Long, String> messagesData;
@@ -63,10 +65,11 @@ public class LocalServer implements RemoteLocalServer {
     }
 
 
-
     @Override
     public boolean sendMessage(String from, String message) throws RemoteException {
         for (RemoteClient friend : this.getUsers()) {
+
+            System.out.println(friend.getUsername());
 
             if (from.equalsIgnoreCase(friend.getUsername())) {
                 friend.sendMessage(id, "You", message);
@@ -77,11 +80,32 @@ public class LocalServer implements RemoteLocalServer {
         return true;
     }
 
+    // Check if the user is in the conversation
+    @Override
+    public boolean containsUser(String theUser) throws RemoteException {
+
+        for (RemoteClient temp : getUsers()) {
+            if (theUser.equalsIgnoreCase(temp.getUsername())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public ArrayList<RemoteClient> getUsers() {
         return users;
     }
 
     public void setUsers(ArrayList<RemoteClient> users) {
         this.users = users;
+    }
+
+    public RemoteClient getHost() throws RemoteException {
+        return host;
+    }
+
+    public void setHost(RemoteClient host) {
+        this.host = host;
     }
 }

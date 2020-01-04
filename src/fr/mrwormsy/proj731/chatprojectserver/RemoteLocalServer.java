@@ -11,4 +11,8 @@ public interface RemoteLocalServer extends Remote {
     ArrayList<RemoteClient> getUsers() throws RemoteException;
 
     void setUsers(ArrayList<RemoteClient> users) throws RemoteException;
+
+    boolean containsUser(String theUser) throws RemoteException;
+
+    RemoteClient getHost() throws RemoteException;
 }
