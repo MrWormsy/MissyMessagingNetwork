@@ -48,6 +48,21 @@ public class Client implements RemoteClient {
 
         clientGUI.setUsername(username);
 
+        // Check if the username is not already bound
+        boolean alreadyBound = true;
+        try {
+            serverRegistry.lookup("USER_" + username);
+        } catch (NotBoundException e) {
+            alreadyBound = false;
+        }
+
+        // If the user is already connected we need to cancel the login
+        if (alreadyBound) {
+            System.out.println("This user is already connected, try with an other one...");
+
+            return;
+        }
+
         /*
 
         // Check if this user is already logged in
@@ -253,7 +268,7 @@ public class Client implements RemoteClient {
         this.password = password;
     }
 
-    public ClientGUI getClientGUI() {
+    public ClientGUI getClientGUI() throws RemoteException {
         return clientGUI;
     }
 

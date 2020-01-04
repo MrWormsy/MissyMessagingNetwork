@@ -1,5 +1,7 @@
 package fr.mrwormsy.proj731.chatprojectserver;
 
+import fr.mrwormsy.proj731.chatprojectserver.gui.ClientGUI;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -32,4 +34,6 @@ public interface RemoteClient extends Remote {
     boolean sendInvitationToServer(String serverSId, RemoteLocalServer localServer) throws RemoteException;
 
     HashMap<String, RemoteLocalServer> getLocalServers() throws RemoteException;
+
+    ClientGUI getClientGUI() throws RemoteException;
 }

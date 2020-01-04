@@ -37,7 +37,9 @@ public class ClientMain {
         TimerTask lookingForPeopleTask = new TimerTask() {
             public void run() {
                 try {
-                    theClient.updateOnlinePlayers();
+                    if(isLoggedIn()) {
+                        theClient.updateOnlinePlayers();
+                    }
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -50,7 +52,9 @@ public class ClientMain {
         TimerTask lookingForConversationsTask = new TimerTask() {
             public void run() {
                 try {
-                    theClient.updateMyConversations();
+                    if(isLoggedIn()) {
+                        theClient.updateMyConversations();
+                    }
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -58,6 +62,21 @@ public class ClientMain {
         };
         Timer timer2 = new Timer("lookingForConversationsTimer");
         timer2.scheduleAtFixedRate(lookingForConversationsTask, 0, 1000L);
+    }
+
+    // Check if the user is logged in
+    public static boolean isLoggedIn() {
+
+        // This is a pretty ugly way to do it but i'm only checking if the title of the GUI is not "Logged Out" and that means that we are not logged in
+        try {
+            if (!getTheClient().getClientGUI().getTitle().equalsIgnoreCase("Logged Out")) {
+                return true;
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public static Registry getRegistryServer() {

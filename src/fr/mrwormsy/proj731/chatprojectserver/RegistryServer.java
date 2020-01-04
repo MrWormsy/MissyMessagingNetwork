@@ -15,17 +15,14 @@ import java.rmi.registry.Registry;
  *   All the users will have the prefix USER_user's name
  *           localServers will have the prefix LSERVER_id
  *
- * */
-
+ */
 
 public class RegistryServer {
-
     public Registry registry;
 
     public RegistryServer() {
         try {
             this.registry = LocateRegistry.createRegistry(22222);
-
             System.out.println("Registry server is ready at port 22222");
         } catch (RemoteException e) {
             e.printStackTrace();
