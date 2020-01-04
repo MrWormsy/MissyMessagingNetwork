@@ -13,9 +13,12 @@ public class ClientMain {
 
     public static RemoteClient theClient;
 
-    public static void main(String args[]) throws RemoteException, AlreadyBoundException {
+    public static void main(String[] args) throws RemoteException, AlreadyBoundException {
+        // The web adress of the registry server (the only must known adress)
 
-        registryServer = LocateRegistry.getRegistry("localhost", 22222);
+        String registryAdress = "localhost";
+
+        registryServer = LocateRegistry.getRegistry(registryAdress, 22222);
 
         // We set the registry as a parameter because we will need him in the future (we thus have removed all the occurrences of ClientMain.registryServer...)
         theClient = new Client(registryServer);

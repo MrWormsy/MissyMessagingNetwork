@@ -3,6 +3,7 @@ package fr.mrwormsy.proj731.chatprojectserver;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 //Creating Remote interface for our application 
 public interface RemoteClient extends Remote {
@@ -29,4 +30,6 @@ public interface RemoteClient extends Remote {
     void startServerWith(String... friend) throws RemoteException;
 
     boolean sendInvitationToServer(String serverSId, RemoteLocalServer localServer) throws RemoteException;
+
+    HashMap<String, RemoteLocalServer> getLocalServers() throws RemoteException;
 }

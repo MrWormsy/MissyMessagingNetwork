@@ -5,18 +5,10 @@ import java.rmi.RemoteException;
 public class RegistryServerMain {
 
     // The Registry will be always on the port 22222
-    public static void main(String args[]) throws RemoteException {
+    public static void main(String[] args) throws RemoteException {
         RegistryServer registryServer = new RegistryServer();
 
-
-        while (true) {
-
-            System.out.println("------------------------------");
-            for (String string : registryServer.registry.list()) {
-                System.out.println(string);
-            }
-
-        }
+        while (true) {}
     }
 
 }

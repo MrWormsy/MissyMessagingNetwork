@@ -7,7 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
+import java.util.*;
 
 public class LocalServer implements RemoteLocalServer {
 
@@ -19,13 +19,16 @@ public class LocalServer implements RemoteLocalServer {
     public String id;
     public RemoteClient host;
 
+    public HashMap<Long, String> messagesData;
+
     // We create a local server by a new id but also the host
     public LocalServer(String id, RemoteClient host) {
         this.users = new ArrayList<RemoteClient>();
 
         this.id = id;
-
         this.host = host;
+
+        this.messagesData = new HashMap<Long, String>();
 
         //We create the registry for the server here
         try {
@@ -51,9 +54,18 @@ public class LocalServer implements RemoteLocalServer {
         }
     }
 
+    private static boolean available(int port) {
+        try (Socket ignored = new Socket("localhost", port)) {
+            return false;
+        } catch (IOException ignored) {
+            return true;
+        }
+    }
+
+
+
     @Override
     public boolean sendMessage(String from, String message) throws RemoteException {
-
         for (RemoteClient friend : this.getUsers()) {
 
             if (from.equalsIgnoreCase(friend.getUsername())) {
@@ -71,13 +83,5 @@ public class LocalServer implements RemoteLocalServer {
 
     public void setUsers(ArrayList<RemoteClient> users) {
         this.users = users;
-    }
-
-    private static boolean available(int port) {
-        try (Socket ignored = new Socket("localhost", port)) {
-            return false;
-        } catch (IOException ignored) {
-            return true;
-        }
     }
 }

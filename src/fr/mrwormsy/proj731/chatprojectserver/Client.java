@@ -79,7 +79,6 @@ public class Client implements RemoteClient {
     public void logOut() throws RemoteException {
 
         //Unbind When logout
-
         try {
             serverRegistry.unbind("USER_" + this.username);
         } catch (NotBoundException e) {
@@ -88,16 +87,6 @@ public class Client implements RemoteClient {
 
         // As we log out we set Logged out as the name of the window
         this.clientGUI.setTitle("Logged out");
-
-        /*
-
-        if (ChatClient.getTheServer().logOut(this.username)) {
-            System.out.println("You has been logged out");
-        } else {
-            System.out.println("You were not logged in...");
-        }
-
-        */
     }
 
     @Override
@@ -287,5 +276,4 @@ public class Client implements RemoteClient {
     public void setServerRegistry(Registry serverRegistry) {
         this.serverRegistry = serverRegistry;
     }
-
 }

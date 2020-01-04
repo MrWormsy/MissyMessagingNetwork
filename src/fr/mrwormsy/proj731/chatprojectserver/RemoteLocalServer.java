@@ -8,9 +8,7 @@ public interface RemoteLocalServer extends Remote {
 
     boolean sendMessage(String from, String message) throws RemoteException;
 
-    public ArrayList<RemoteClient> getUsers() throws RemoteException;
+    ArrayList<RemoteClient> getUsers() throws RemoteException;
 
-    public void setUsers(ArrayList<RemoteClient> users) throws RemoteException;
-
-
+    void setUsers(ArrayList<RemoteClient> users) throws RemoteException;
 }
