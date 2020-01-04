@@ -1,8 +1,9 @@
 # RMIChatProject
 
-AIM : Build a decentralized chatting system
+AIM : Build a decentralized chat over the internet using Java
 
 Join a conversation
+
 Quit a conversation
-Show a conversation on different set of panels
+
 Invite friend to join an existing conversation
