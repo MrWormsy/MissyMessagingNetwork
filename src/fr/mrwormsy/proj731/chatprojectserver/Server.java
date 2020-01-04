@@ -87,7 +87,7 @@ public class Server implements RemoteServer {
         RemoteClient client = getUserFromUsername(to);
 
         if (client != null) {
-            client.sendMessage(from, message);
+            client.sendMessage("", from, message);
             return true;
         }
 

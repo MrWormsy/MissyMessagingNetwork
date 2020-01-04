@@ -1,5 +1,7 @@
 package fr.mrwormsy.proj731.chatprojectserver;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -27,13 +29,13 @@ public class LocalServer implements RemoteLocalServer {
 
         //We create the registry for the server here
         try {
+            // Here we check if the port is already taken by one of the local servers by "testing" with a socket
+            int port = 50000;
+            while (!available(port)) {
+                port++;
+            }
 
-            // TODO MAYBE HERE WE WILL GET A PROBLEM BECAUSE WE WILL CREATE SEVERAL REGISTERY ON THE SAME PORT AND I DONT THINK THIS WILL WORK
-            // YES WE GOT THAT PROBLEM
-
-            // TODO WE WILL NEED TO FIND SOMETHING TO FIX THIS
-
-            registry = LocateRegistry.createRegistry(1888);
+            registry = LocateRegistry.createRegistry(port);
             registry.bind("LSERVER_" + id, UnicastRemoteObject.exportObject(this, 0));
         } catch (RemoteException | AlreadyBoundException e) {
             e.printStackTrace();
@@ -47,7 +49,6 @@ public class LocalServer implements RemoteLocalServer {
             System.out.println("Connection to registry server failed");
             return;
         }
-
     }
 
     @Override
@@ -56,39 +57,11 @@ public class LocalServer implements RemoteLocalServer {
         for (RemoteClient friend : this.getUsers()) {
 
             if (from.equalsIgnoreCase(friend.getUsername())) {
-                friend.sendMessage("You", message);
+                friend.sendMessage(id, "You", message);
             } else {
-                friend.sendMessage(from, message);
+                friend.sendMessage(id, from, message);
             }
         }
-
-
-
-        /*
-
-        // We loop through the list of users connected and then we send them messages (if the user is the sender we replace his name by "you")
-        for(String friend : this.registry.list()) {
-
-            try {
-                temp = (RemoteClient) registry.lookup("USER_" + friend);
-
-                if (from.equalsIgnoreCase(friend)) {
-                    temp.sendMessage("You", message);
-                }
-                else {
-                    temp.sendMessage(from, message);
-                }
-
-                System.out.println("TEST TEST " + friend);
-
-            } catch (NotBoundException e) {e.printStackTrace();}
-
-
-            System.out.println("FRIEND " + friend);
-        }
-
-        */
-
         return true;
     }
 
@@ -98,5 +71,13 @@ public class LocalServer implements RemoteLocalServer {
 
     public void setUsers(ArrayList<RemoteClient> users) {
         this.users = users;
+    }
+
+    private static boolean available(int port) {
+        try (Socket ignored = new Socket("localhost", port)) {
+            return false;
+        } catch (IOException ignored) {
+            return true;
+        }
     }
 }

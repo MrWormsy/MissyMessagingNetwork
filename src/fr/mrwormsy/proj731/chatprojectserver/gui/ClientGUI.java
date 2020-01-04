@@ -11,6 +11,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ClientGUI extends JFrame {
 
@@ -19,7 +20,13 @@ public class ClientGUI extends JFrame {
 
     // All the variables
     private JPanel writeAndSendPanel;
+
+    // Here we have to change that because we will no longer have a single text area  but a text area for every conversations.
+    // We will continue to use the JTextArea to diplay things but it will be stored inside the hashmap
     private JTextArea chatDisplay;
+    private HashMap<String, String> conversationsData;
+
+
     private JTextField chatWritter;
     private JButton sendMessageButton;
     private JPanel sendPanel;
@@ -54,6 +61,7 @@ public class ClientGUI extends JFrame {
         this.setSize(600, 400);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
+        this.conversationsData = new HashMap<String, String>();
 
         // We don't want the program to finish, just the window to close, this is why we
         // are using DISPOSE_ON_CLOSE instead of EXIT_ON_CLOSE
@@ -185,30 +193,6 @@ public class ClientGUI extends JFrame {
                 // If the message contains something
                 if (!chatWritter.getText().isEmpty()) {
 
-                    // TODO OLD ISSUE
-					/*
-					try {
-
-
-
-
-						// If it return false that means that the message could not be sent and thus the receiver does not exists
-						if (ChatClient.getTheServer().sendMessage(getUsername(), (String) onlineUsers.getSelectedItem(), chatWritter.getText())) {
-							writeMessage(getUsername(), chatWritter.getText());
-						} else {
-							logMessage("User does not exists");
-						}
-
-
-
-					} catch (RemoteException e1) {
-						e1.printStackTrace();
-					}
-
-					*/
-
-                    // System.out.println("I've removed this part check todos");
-
                     // We want to send a message to the selected conversation
                     try {
 
@@ -216,9 +200,8 @@ public class ClientGUI extends JFrame {
                         if (client.getLocalServers().containsKey(currentConversation)) {
                             client.getLocalServers().get(currentConversation).sendMessage(username, chatWritter.getText());
                         } else {
-                            System.out.println("This server does not exists...");
+                            System.out.println("This server does not exist...");
                         }
-
 
                     } catch (RemoteException ex) {
                         ex.printStackTrace();
@@ -302,19 +285,38 @@ public class ClientGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                System.out.println(conv);
-
+                // When we choose a conversation we need to set the current one to this one, change the title and show the conversation
                 setCurrentConversation(conv);
+                setTitle(username + " @ " + conv);
+                showConversation(conv);
             }
         });
+    }
+
+    // Show the given conversation
+    public void showConversation(String conv) {
+
+        // If the conversation exists we can show it
+        if (conversationsData.containsKey(conv)) {
+            getChatDisplay().setText(conversationsData.get(conv));
+            setTitle(username + " @ " + conv);
+        } else {
+            System.out.println("The given conversation does not exist");
+        }
     }
 
     private void logMessage(String message) {
         this.chatDisplay.setText(this.chatDisplay.getText() + "\n log : " + message);
     }
 
-    public void writeMessage(String from, String message) {
-        this.chatDisplay.setText(this.chatDisplay.getText() + "\n" + from + " wrote " + message);
+    public void writeMessage(String conversationId, String from, String message) {
+        //this.chatDisplay.setText(this.chatDisplay.getText() + "\n" + from + " wrote " + message);
+
+        // Here we add the text to the conversation
+        conversationsData.replace(conversationId, conversationsData.get(conversationId) + "\n" + from + " wrote " + message);
+
+        // And we show the last conversation
+        this.chatDisplay.setText(conversationsData.get(conversationId));
     }
 
     // Getters and Setters...
@@ -404,5 +406,13 @@ public class ClientGUI extends JFrame {
 
     public void setCurrentConversation(String currentConversation) {
         this.currentConversation = currentConversation;
+    }
+
+    public HashMap<String, String> getConversationsData() {
+        return conversationsData;
+    }
+
+    public void setConversationsData(HashMap<String, String> conversationsData) {
+        this.conversationsData = conversationsData;
     }
 }

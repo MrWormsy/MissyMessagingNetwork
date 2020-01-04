@@ -79,8 +79,8 @@ public class User implements RemoteClient {
     }
 
     @Override
-    public void sendMessage(String from, String message) throws RemoteException {
-        clientGUI.writeMessage(from, message);
+    public void sendMessage(String id, String from, String message) throws RemoteException {
+        clientGUI.writeMessage(id, from, message);
     }
 
     @Override

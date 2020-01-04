@@ -116,8 +116,8 @@ public class Client implements RemoteClient {
     //TODO WE NEED TO REMOVE THE GUYS WHO DECONNECTED AND THE CONVERSATIONS FROM THE MENU
 
     @Override
-    public void sendMessage(String from, String message) throws RemoteException {
-        clientGUI.writeMessage(from, message);
+    public void sendMessage(String id, String from, String message) throws RemoteException {
+        clientGUI.writeMessage(id, from, message);
     }
 
     //TODO WE NEED TO REMOVE THE GUYS WHO DECONNECTED AND THE CONVERSATIONS FROM THE MENU
@@ -223,6 +223,16 @@ public class Client implements RemoteClient {
         System.out.println("SERVER " + randomUUID.toString() + " is up");
 
         clientGUI.setCurrentConversation(randomUUID.toString());
+
+        // We update the title
+        clientGUI.setTitle(username + " @ " + randomUUID.toString());
+
+        // And we need to create an empty conversationData
+        clientGUI.getConversationsData().put(randomUUID.toString(), "You are now connected, have fun chatting");
+
+        // And show this conversation
+        clientGUI.showConversation(randomUUID.toString());
+
     }
 
     // Warn that this user has been invited to join a conversation and the boolean means whether the user has been successfully invited or not
@@ -233,6 +243,15 @@ public class Client implements RemoteClient {
         this.localServers.put(serverSId, localServer);
 
         this.clientGUI.setCurrentConversation(serverSId);
+
+        // We update the title
+        clientGUI.setTitle(username + " @ " + serverSId);
+
+        // And we need to create an empty conversationData
+        clientGUI.getConversationsData().put(serverSId, "You are now connected, have fun chatting");
+
+        // And show this conversation
+        clientGUI.showConversation(serverSId);
 
         return true;
     }

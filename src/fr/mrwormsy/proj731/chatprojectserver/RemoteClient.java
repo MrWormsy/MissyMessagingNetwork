@@ -16,7 +16,7 @@ public interface RemoteClient extends Remote {
 
     String getUsername() throws RemoteException;
 
-    void sendMessage(String from, String message) throws RemoteException;
+    void sendMessage(String id, String from, String message) throws RemoteException;
 
     void updateOnlinePlayers() throws RemoteException;
 
