@@ -291,7 +291,7 @@ public class Client implements RemoteClient {
         }
     }
 
-    // --- Getters and Setters
+    // --- Getters and Setters ---
 
     @Override
     public HashMap<String, RemoteLocalServer> getLocalServers() {
