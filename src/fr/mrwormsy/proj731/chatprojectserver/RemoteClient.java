@@ -42,5 +42,5 @@ public interface RemoteClient extends Remote {
 
     void quitConversation(String conv) throws RemoteException;
 
-    Registry getServerRegistry() throws RemoteException;
+    // Registry getServerRegistry() throws RemoteException;
 }
