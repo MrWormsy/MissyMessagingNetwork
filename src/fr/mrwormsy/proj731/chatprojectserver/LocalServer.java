@@ -8,29 +8,30 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class LocalServer implements RemoteLocalServer {
 
+    // The users who are part of the server
     public ArrayList<RemoteClient> users;
 
-    // Has every entities it is connected to
+    // The local registry
     public Registry registry;
 
+    // The id of the server
     public String id;
 
+    // The host
     public RemoteClient host;
 
-    public HashMap<Long, String> messagesData;
+    // --- Contructor ---
 
     // We create a local server by a new id but also the host
     public LocalServer(String id, RemoteClient host) {
-        this.users = new ArrayList<RemoteClient>();
 
+        // We init the variables
+        this.users = new ArrayList<RemoteClient>();
         this.id = id;
         this.host = host;
-
-        this.messagesData = new HashMap<Long, String>();
 
         //We create the registry for the server here
         try {
@@ -40,6 +41,7 @@ public class LocalServer implements RemoteLocalServer {
                 port++;
             }
 
+            // We create a registry and we export this server to it
             registry = LocateRegistry.createRegistry(port);
             registry.bind("LSERVER_" + id, UnicastRemoteObject.exportObject(this, 0));
         } catch (RemoteException | AlreadyBoundException e) {
@@ -56,43 +58,46 @@ public class LocalServer implements RemoteLocalServer {
         }
     }
 
+    // --- Overridden Methods ---
+
+    // Check if the port is available
     private static boolean available(int port) {
-        try (Socket ignored = new Socket("localhost", port)) {
+        try (Socket temp = new Socket("localhost", port)) {
             return false;
-        } catch (IOException ignored) {
+        } catch (IOException temp) {
             return true;
         }
     }
 
-
+    // Used to send a message to all the users of the conversation
     @Override
     public boolean sendMessage(String from, String message) throws RemoteException {
         for (RemoteClient friend : this.getUsers()) {
 
-            System.out.println(friend.getUsername());
-
+            // We prettify the message...
             if (from.equalsIgnoreCase(friend.getUsername())) {
                 friend.sendMessage(id, "You", message);
             } else {
                 friend.sendMessage(id, from, message);
             }
         }
+
+        // Returns true for future implements
         return true;
     }
 
-    // Check if the user is in the conversation
+    // Check if a user is in the conversation
     @Override
     public boolean containsUser(String theUser) throws RemoteException {
-
         for (RemoteClient temp : getUsers()) {
             if (theUser.equalsIgnoreCase(temp.getUsername())) {
                 return true;
             }
         }
-
         return false;
     }
 
+    // Destroy the current server (/!\ This method may lead to errors /!\)
     @Override
     public void destroy() throws RemoteException {
 
@@ -102,33 +107,49 @@ public class LocalServer implements RemoteLocalServer {
         }
 
         // We close the registry
-        UnicastRemoteObject.unexportObject(this.registry,true);
+        UnicastRemoteObject.unexportObject(this.registry, true);
 
+        // To destroy the link
         this.registry = null;
     }
 
+    // --- Methods ---
+
+    // Get the id of the server
     @Override
     public String getId() throws RemoteException {
         return this.id;
     }
 
+    // --- Getters and Setters
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
     public ArrayList<RemoteClient> getUsers() {
         return users;
     }
 
+    @Override
     public void setUsers(ArrayList<RemoteClient> users) {
         this.users = users;
     }
 
-    public RemoteClient getHost() throws RemoteException {
-        return host;
+    @Override
+    public Registry getRegistry() {
+        return registry;
+    }
+
+    public void setRegistry(Registry registry) {
+        this.registry = registry;
     }
 
     @Override
-    public Registry getRegistry() throws RemoteException {
-        return this.registry;
+    public RemoteClient getHost() {
+        return host;
     }
-
 
     public void setHost(RemoteClient host) {
         this.host = host;

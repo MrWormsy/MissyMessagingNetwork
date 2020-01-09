@@ -43,7 +43,7 @@ public class Client implements RemoteClient {
 
         // We gather the remote registry server (Which only contains the clients)
         try {
-            Registry serverRegistry = LocateRegistry.getRegistry(ClientMain.registryAdress, 22222);
+            Registry serverRegistry = LocateRegistry.getRegistry(ClientMain.registryAddress, 22222);
             this.remoteRegistryServer = (RemoteRegistryServer) serverRegistry.lookup("clients");
         } catch (RemoteException | NotBoundException e) {
             e.printStackTrace();

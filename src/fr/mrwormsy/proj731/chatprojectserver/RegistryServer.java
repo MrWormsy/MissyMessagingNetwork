@@ -10,32 +10,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/*
- *
- * This is the registry where we keep all the Clients
- *
- * But we can add all the references to the local servers as well where we only
- *
- * But the person invited will have to keep a list of the registry they are connected to with the conversation id
- *
- *   All the users will have the prefix USER_user's name
- *           localServers will have the prefix LSERVER_id
- *
- */
-
 public class RegistryServer implements RemoteRegistryServer {
-    public Registry registry;
 
+    // The database of clients
     private HashMap<String, RemoteClient> clients;
+
+    // --- Constructor ---
 
     public RegistryServer() {
         try {
-            this.registry = LocateRegistry.createRegistry(22222);
+            // We first create the registry at the port 22222
+            Registry registry = LocateRegistry.createRegistry(22222);
 
+            // We create an empty hashmap
             this.clients = new HashMap<>();
 
-            // Here we need to create this to store clients' data
-            this.registry.bind("clients", UnicastRemoteObject.exportObject(this, 0));
+            // Here we need to create this to store the clients
+            registry.bind("clients", UnicastRemoteObject.exportObject(this, 0));
 
             // We notify that the server is up
             System.out.println("Registry server is ready at port 22222");
@@ -43,6 +34,8 @@ public class RegistryServer implements RemoteRegistryServer {
             e.printStackTrace();
         }
     }
+
+    // --- Overridden methods ---
 
     // Add client to list
     @Override
@@ -59,10 +52,9 @@ public class RegistryServer implements RemoteRegistryServer {
     // Check if client exists
     @Override
     public boolean clientExists(String clientName) throws RemoteException {
-
         Iterator it = this.clients.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
+            Map.Entry pair = (Map.Entry) it.next();
 
             if (((String) pair.getKey()).equalsIgnoreCase(clientName)) {
                 return true;
@@ -79,18 +71,18 @@ public class RegistryServer implements RemoteRegistryServer {
 
         Iterator it = this.clients.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
+            Map.Entry pair = (Map.Entry) it.next();
             clients.add((RemoteClient) pair.getValue());
         }
-
         return clients;
     }
 
+    // Get a client from his name
     @Override
     public RemoteClient getRemoteClient(String clientName) throws RemoteException {
         Iterator it = this.clients.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
+            Map.Entry pair = (Map.Entry) it.next();
 
             if (((String) pair.getKey()).equalsIgnoreCase(clientName)) {
                 return (RemoteClient) pair.getValue();
