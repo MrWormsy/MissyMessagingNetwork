@@ -4,7 +4,6 @@ import fr.mrwormsy.proj731.chatprojectserver.gui.ClientGUI;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -41,6 +40,4 @@ public interface RemoteClient extends Remote {
     void addUserToTheConversation(String conv, String user) throws RemoteException;
 
     void quitConversation(String conv) throws RemoteException;
-
-    // Registry getServerRegistry() throws RemoteException;
 }

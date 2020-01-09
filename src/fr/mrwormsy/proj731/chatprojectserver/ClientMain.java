@@ -1,6 +1,5 @@
 package fr.mrwormsy.proj731.chatprojectserver;
 
-import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -9,29 +8,31 @@ import java.util.TimerTask;
 
 public class ClientMain {
 
+    // The client instance
     public static RemoteClient theClient;
 
-    public static String registryAdress = "localhost";
+    // The address of the regitry server (that will may be rosacorp.net)
+    public static String registryAddress = "localhost";
 
-    public static void main(String[] args) throws RemoteException, AlreadyBoundException {
-        // The web adress of the registry server (the only must known adress)
+    // Main method
+    public static void main(String[] args) throws RemoteException {
 
-        Registry registryServer = LocateRegistry.getRegistry(registryAdress, 22222);
+        // We get the registry of the refistry server to know if it is online
+        Registry registryServer = LocateRegistry.getRegistry(registryAddress, 22222);
 
-        System.out.println("THE REGISTRY SERVER " + registryServer);
-
-        // We set the registry as a parameter because we will need him in the future (we thus have removed all the occurrences of ClientMain.registryServer...)
+        // We create a client instance
         theClient = new Client();
 
-
-        // Check if the registry is available
+        // Check if the registry is available (ie the server is up)
         try {
             registryServer.list();
             System.out.println("Connection to registry server successful");
         } catch (Exception e) {
-            System.out.println("Connection to registry server failed");
+            System.out.println("Connection to registry server failed, it might be offline");
             return;
         }
+
+        // This is dirty but it is the best way to do it yet sorry :/
 
         // Here we need to make a thread that is looking for other persons every seconds
         TimerTask lookingForPeopleTask = new TimerTask() {
@@ -75,12 +76,11 @@ public class ClientMain {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-
         return false;
     }
 
+    // Get the client in a static way
     public static RemoteClient getTheClient() {
         return theClient;
     }
-
 }

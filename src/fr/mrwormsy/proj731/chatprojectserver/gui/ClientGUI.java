@@ -1,7 +1,6 @@
 package fr.mrwormsy.proj731.chatprojectserver.gui;
 
 import fr.mrwormsy.proj731.chatprojectserver.Client;
-import fr.mrwormsy.proj731.chatprojectserver.ClientMain;
 import fr.mrwormsy.proj731.chatprojectserver.RemoteClient;
 
 import javax.swing.*;
@@ -309,7 +308,7 @@ public class ClientGUI extends JFrame {
 
                     for (String theUser : client.getOnlinePersons()) {
 
-                        if (! client.getLocalServers().get(conv).containsUser(theUser) && ! theUser.equalsIgnoreCase(username)) {
+                        if (!client.getLocalServers().get(conv).containsUser(theUser) && !theUser.equalsIgnoreCase(username)) {
                             temp.add(theUser);
                         }
                     }
