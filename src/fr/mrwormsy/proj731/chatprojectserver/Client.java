@@ -3,7 +3,6 @@ package fr.mrwormsy.proj731.chatprojectserver;
 import fr.mrwormsy.proj731.chatprojectserver.gui.ClientGUI;
 
 import javax.swing.*;
-import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -11,144 +10,126 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
+// TODO HANDLE LOCAL SERVERS THAT ARE NOT ENDED WE NEED TO MAKE AN OTHER PERSON OF THE TEAM THE LEADER AND ALSO MAYBE THE LEADER CAN GIVE HOS LEADER PRIVILEDGE ON SOMEONE ELSE
+// TODO WE NEED TO REMOVE THE GUYS WHO DECONNECTED AND THE CONVERSATIONS FROM THE MENU
+// TODO Quit a conversation. If we quit a conversation and we were only two we destroy this conversation, otherwise we make a random user the new leader if it is the leader that left this conversation
+
+
 public class Client implements RemoteClient {
-    // Set of servers that i am the host... (The string is the conversation id : 5W6r8fUsy7rF)
+
+    // Set of local servers with a unique id
     public HashMap<String, RemoteLocalServer> localServers;
+
+    // The RemoteClient instance
     public RemoteClient remoteClient;
+
+    // The GUI
     private ClientGUI clientGUI;
+
+    // The username used to identity me on the network
     private String username;
 
+    // The remote registry server
     private RemoteRegistryServer remoteRegistryServer;
 
-    private Registry serverRegistry;
-
-    // To send messages to the server we only need the id of the server with who sent the message
+    // The password but it is pretty useless now
     private String password;
+
+    // --- Constructor ---
 
     public Client() {
         this.username = "";
         this.password = "";
 
-        // We gather the registry server
+        // We gather the remote registry server (Which only contains the clients)
         try {
-            this.serverRegistry = LocateRegistry.getRegistry(ClientMain.registryAdress, 22222);
-
-            this.remoteRegistryServer = (RemoteRegistryServer) this.serverRegistry.lookup("clients");
+            Registry serverRegistry = LocateRegistry.getRegistry(ClientMain.registryAdress, 22222);
+            this.remoteRegistryServer = (RemoteRegistryServer) serverRegistry.lookup("clients");
         } catch (RemoteException | NotBoundException e) {
             e.printStackTrace();
         }
 
+        // Create a GUI and set it visible
         clientGUI = new ClientGUI(this);
         clientGUI.setVisible(true);
 
+        // Init local servers to empty
         this.localServers = new HashMap<String, RemoteLocalServer>();
     }
 
+    // --- Ovveriden methods ---
+
+    // Create an account for the user (useless for now) and export the client
     @Override
     public void createUserAccount(String username, String password) throws RemoteException {
-
         this.username = username;
         this.password = password;
 
         remoteClient = (RemoteClient) UnicastRemoteObject.exportObject(this, 0);
-
         remoteClient.log("Account has been created");
     }
 
+    // Log the user in with its brand new account and send it to the registry server clients' database
     @Override
     public void logIn(String username, String password) throws RemoteException {
-
-        clientGUI.setUsername(username);
-
-
-        // If the user is already connected we need to cancel the login
-        //if (alreadyBound) {
+        // If the user is already connected (into the database) we need to cancel the login...
         if (this.remoteRegistryServer.clientExists(username)) {
             System.out.println("This user is already connected, try with an other one...");
-
             return;
         }
 
-        /*
-
-        // Check if this user is already logged in
-        if (ChatClient.getTheServer().isUserAlreadyLoggedIn(username)) {
-            this.log("User already logged");
-            return;
-        }
-
-        */
+        // Set the username of the GUI
+        clientGUI.setUsername(username);
 
         // Change the title of the windows because we want the username as the title
         this.clientGUI.setTitle(username);
 
-
-
+        // Add the client to the database
         this.remoteRegistryServer.addClient(username, this.remoteClient);
         remoteClient.log("Client logged in");
     }
 
-    // TODO HANDLE LOCAL SERVERS THAT ARE NOT ENDED WE NEED TO MAKE AN OTHER PERSON OF THE TEAM THE LEADER AND ALSO MAYBE THE LEADER CAN GIVE HOS LEADER PRIVILEDGE ON SOMEONE ELSE
-
+    // Log the user out in a safe way
     @Override
     public void logOut() throws RemoteException {
 
-        // Here we quit all the conversations I am into...
+        // Here the user quits all the conversations he is into...
         Iterator it = localServers.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
-
             quitConversation((String) pair.getKey());
         }
 
-        it = localServers.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
-            System.out.println(pair.getKey() + " " + pair.getValue());
-        }
-
+        // Remove this user from the database
         this.remoteRegistryServer.removeClient(this.username);
 
-        // As we log out we set Logged out as the name of the window
+        // As we log out we set "Logged out" as the name of the window
         this.clientGUI.setTitle("Logged out");
     }
 
+    // Write log for debugging
     @Override
     public void log(String log) throws RemoteException {
         System.out.println(log);
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    //TODO WE NEED TO REMOVE THE GUYS WHO DECONNECTED AND THE CONVERSATIONS FROM THE MENU
-
+    // Send a message to all the users of the conversation
     @Override
-    public void sendMessage(String id, String from, String message) throws RemoteException {
-        clientGUI.writeMessage(id, from, message);
-
-        Iterator it = localServers.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
-            System.out.println(pair.getKey() + " " + pair.getValue());
-        }
+    public void sendMessage(String conversation, String from, String message) throws RemoteException {
+        clientGUI.writeMessage(conversation, from, message);
     }
 
-    //TODO WE NEED TO REMOVE THE GUYS WHO DECONNECTED AND THE CONVERSATIONS FROM THE MENU
-
+    // Update the online players
     @Override
     public void updateOnlinePlayers() throws RemoteException {
 
+        // Get the list of online players (the ones who are the the database)
         ArrayList<String> onlines = this.getOnlinePersons();
 
+        // We loop through this file
         for (String online : onlines) {
 
-            // TODO UNCOMMENT THAT AFTER TESTS
+            // Here we need to create a submenu for the current online user to be able to do some interactions with him (everybody except the client)
             if (!online.equalsIgnoreCase(getUsername())) {
                 if (!clientGUI.isUserAlreadyInPeopleMenu(online)) {
                     clientGUI.createPeopleForMenuByName(online);
@@ -157,11 +138,14 @@ public class Client implements RemoteClient {
         }
     }
 
+    // Update the list of the conversations I am in
     @Override
     public void updateMyConversations() throws RemoteException {
 
+        // We get the conversations the user is in
         ArrayList<String> conversations = this.getMyConversations();
 
+        // We create a submenu for the client to do interactions with this conversation
         for (String conv : conversations) {
             if (!clientGUI.isConversationsAlreadyInConversationsMenu(conv)) {
                 clientGUI.createConversationsForMenuByName(conv);
@@ -169,67 +153,75 @@ public class Client implements RemoteClient {
         }
     }
 
+    // Get the online persons (The ones who are in the database)
     @Override
     public ArrayList<String> getOnlinePersons() throws RemoteException {
-        // Here we get the list of people in the registry and then we return it
+
+        // We create the return list
         ArrayList<String> onlines = new ArrayList<String>();
 
-        //for (String online : getServerRegistry().list()) {
+        // We loop through the people that are in the database and we add them to the list to return
         for (RemoteClient theClient : this.remoteRegistryServer.getClients()) {
-
             onlines.add(theClient.getUsername());
         }
+
         return onlines;
     }
 
+    // Get the conversations I am part of
     @Override
     public ArrayList<String> getMyConversations() throws RemoteException {
-        // Here we get the list of people in the registry and then we return it
+
+        // We create the return list
         ArrayList<String> conversations = new ArrayList<String>();
 
+        // We loop through all the conversations that I belong and we will return them
         Iterator it = localServers.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
             conversations.add((String) pair.getKey());
         }
 
-
         return conversations;
     }
 
-    // Add him and add the friend
+    // Start a conversation (server) with one or more friends
     @Override
     public void startServerWith(String... friend) throws RemoteException {
+        // We get a random UUID for the conversation
         UUID randomUUID = UUID.randomUUID();
 
+        // Create a new Local Server where the user is the host
         RemoteLocalServer localServer = new LocalServer(randomUUID.toString(), this);
 
-        // The first user we have in our conversation participants will be the host and then we send the others...
+        // We add this conversations to the ones the users is into
         this.localServers.put(randomUUID.toString(), localServer);
+
+        // And we add the user to this conversation
         localServer.getUsers().add(this);
 
+        // Temp value
         RemoteClient temp;
 
         // Here we add all the friends :
         for (String f : friend) {
             try {
+
                 // We need to warn them that we have been added to this conversation with the conversation's id
                 temp = this.remoteRegistryServer.getRemoteClient(f);
                 temp.sendInvitationToServer(randomUUID.toString(), localServer);
 
-                // And add the user
+                // And add the friend
                 localServer.getUsers().add(temp);
             } catch (Exception e) {
                 System.out.println("This user does not exists");
             }
         }
 
-        // Send a message to warn them that the conversation is up
-        System.out.println("SERVER " + randomUUID.toString() + " is up");
-
+        // We set that to notify that this conversation is up
         clientGUI.setCurrentConversation(randomUUID.toString());
 
-        // We update the title
+        // We update the title (To know on which conversation we are talking)
         clientGUI.setTitle(username + " @ " + randomUUID.toString());
 
         // And we need to create an empty conversationData
@@ -237,64 +229,111 @@ public class Client implements RemoteClient {
 
         // And show this conversation
         clientGUI.showConversation(randomUUID.toString());
-
     }
 
-    // Warn that this user has been invited to join a conversation and the boolean means whether the user has been successfully invited or not
+    // Warn that the user has been invited to join a conversation and the boolean means whether the user has been successfully invited or not
     @Override
-    public boolean sendInvitationToServer(String serverSId, RemoteLocalServer localServer) throws RemoteException {
+    public boolean sendInvitationToServer(String serverId, RemoteLocalServer localServer) throws RemoteException {
 
-        // Add the local server to the hashmap of the player
-        this.localServers.put(serverSId, localServer);
+        // Add the local server to the server's list of the player
+        this.localServers.put(serverId, localServer);
 
-        this.clientGUI.setCurrentConversation(serverSId);
+        // We set the current conversation to this one
+        this.clientGUI.setCurrentConversation(serverId);
 
         // We update the title
-        clientGUI.setTitle(username + " @ " + serverSId);
+        clientGUI.setTitle(username + " @ " + serverId);
 
         // And we need to create an empty conversationData
-        clientGUI.getConversationsData().put(serverSId, "You are now connected, have fun chatting");
+        clientGUI.getConversationsData().put(serverId, "You are now connected, have fun chatting");
 
         // And show this conversation
-        clientGUI.showConversation(serverSId);
+        clientGUI.showConversation(serverId);
 
         return true;
     }
 
+    // This method is to add user the an already created conversation
     @Override
     public void addUserToTheConversation(String conv, String user) throws RemoteException {
 
-        // Check if this user is the host of the host of Localserver
+        // Check if this user is the host of the Local Server
         if (this.getLocalServers().get(conv).getHost() != this) {
             JOptionPane.showMessageDialog(clientGUI, "You cannot add this user because you are not the host");
             return;
         }
 
-        try {
-            // We need to warn them that we have been added to this conversation with the conversation's id
-            RemoteClient temp = this.remoteRegistryServer.getRemoteClient(user);
-            temp.sendInvitationToServer(conv, this.localServers.get(conv));
+        // We need to warn them that we have been added to this conversation with the conversation's id
+        RemoteClient temp = this.remoteRegistryServer.getRemoteClient(user);
+        temp.sendInvitationToServer(conv, this.localServers.get(conv));
 
-            // And add the user
-            this.localServers.get(conv).getUsers().add(temp);
-        } catch (Exception e) {
-            System.out.println("This user does not exists");
-        }
+        // And add the user to the server
+        this.localServers.get(conv).getUsers().add(temp);
     }
 
-    // TODO Quit a conversation. If we quit a conversation and we were only two we destroy this conversation, otherwise we make a random user the new leader if it is the leader that left this conversation
+    // Quit a given conversation (/!\ This method may lead to errors /!\)
     @Override
     public void quitConversation(String conv) throws RemoteException {
 
+        // Get the conversation the user wants to leave
         RemoteLocalServer theServer = getLocalServers().get(conv);
 
         // First thing first, we need to check how many they were in this conversation...
         // If they were two or less we need to destroy this local server...
         if (theServer.getRegistry().list().length <= 2) {
             theServer.destroy();
-
             this.localServers.remove(conv);
         }
+
+        // Else I did not do it yet :/
+        else {
+
+        }
+    }
+
+    // --- Getters and Setters
+
+    @Override
+    public HashMap<String, RemoteLocalServer> getLocalServers() {
+        return localServers;
+    }
+
+    public void setLocalServers(HashMap<String, RemoteLocalServer> localServers) {
+        this.localServers = localServers;
+    }
+
+    public RemoteClient getRemoteClient() {
+        return remoteClient;
+    }
+
+    public void setRemoteClient(RemoteClient remoteClient) {
+        this.remoteClient = remoteClient;
+    }
+
+    @Override
+    public ClientGUI getClientGUI() {
+        return clientGUI;
+    }
+
+    public void setClientGUI(ClientGUI clientGUI) {
+        this.clientGUI = clientGUI;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public RemoteRegistryServer getRemoteRegistryServer() {
+        return remoteRegistryServer;
+    }
+
+    public void setRemoteRegistryServer(RemoteRegistryServer remoteRegistryServer) {
+        this.remoteRegistryServer = remoteRegistryServer;
     }
 
     public String getPassword() {
@@ -304,30 +343,4 @@ public class Client implements RemoteClient {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    public ClientGUI getClientGUI() throws RemoteException {
-        return clientGUI;
-    }
-
-    public void setClientGUI(ClientGUI clientGUI) {
-        this.clientGUI = clientGUI;
-    }
-
-    public HashMap<String, RemoteLocalServer> getLocalServers() {
-        return localServers;
-    }
-
-    public void setLocalServers(HashMap<String, RemoteLocalServer> localServers) {
-        this.localServers = localServers;
-    }
-
-    /*
-
-    public Registry getServerRegistry() throws RemoteException {
-        String registryAdress = "193.48.125.115";
-
-        return LocateRegistry.getRegistry(registryAdress, 22222);
-    }
-
-     */
 }

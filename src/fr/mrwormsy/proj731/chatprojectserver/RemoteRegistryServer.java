@@ -7,9 +7,12 @@ import java.util.ArrayList;
 public interface RemoteRegistryServer extends Remote {
 
     void addClient(String clientName, RemoteClient client) throws RemoteException;
-    void removeClient(String clientName) throws RemoteException;
-    boolean clientExists(String clientName) throws RemoteException;
-    ArrayList<RemoteClient> getClients() throws RemoteException;
-    RemoteClient getRemoteClient(String clientName) throws RemoteException;
 
+    void removeClient(String clientName) throws RemoteException;
+
+    boolean clientExists(String clientName) throws RemoteException;
+
+    ArrayList<RemoteClient> getClients() throws RemoteException;
+
+    RemoteClient getRemoteClient(String clientName) throws RemoteException;
 }
