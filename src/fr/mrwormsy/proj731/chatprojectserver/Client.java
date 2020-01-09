@@ -18,12 +18,25 @@ public class Client implements RemoteClient {
     private ClientGUI clientGUI;
     private String username;
 
+    private RemoteRegistryServer remoteRegistryServer;
+
+    private Registry serverRegistry;
+
     // To send messages to the server we only need the id of the server with who sent the message
     private String password;
 
     public Client() {
         this.username = "";
         this.password = "";
+
+        // We gather the registry server
+        try {
+            this.serverRegistry = LocateRegistry.getRegistry(ClientMain.registryAdress, 22222);
+
+            this.remoteRegistryServer = (RemoteRegistryServer) this.serverRegistry.lookup("clients");
+        } catch (RemoteException | NotBoundException e) {
+            e.printStackTrace();
+        }
 
         clientGUI = new ClientGUI(this);
         clientGUI.setVisible(true);
@@ -47,16 +60,10 @@ public class Client implements RemoteClient {
 
         clientGUI.setUsername(username);
 
-        // Check if the username is not already bound
-        boolean alreadyBound = true;
-        try {
-            getServerRegistry().lookup("USER_" + username);
-        } catch (NotBoundException e) {
-            alreadyBound = false;
-        }
 
         // If the user is already connected we need to cancel the login
-        if (alreadyBound) {
+        //if (alreadyBound) {
+        if (this.remoteRegistryServer.clientExists(username)) {
             System.out.println("This user is already connected, try with an other one...");
 
             return;
@@ -75,16 +82,10 @@ public class Client implements RemoteClient {
         // Change the title of the windows because we want the username as the title
         this.clientGUI.setTitle(username);
 
-        // HERE WE NEED TO BE CAREFUL BECAUSE WE DO NOT LINK THE USER WITH ITS NAME BUT WITH USER_user's name
 
-        try {
 
-            getServerRegistry().bind("USER_" + username, this.remoteClient);
-            remoteClient.log("Client logged in");
-
-        } catch (AlreadyBoundException e) {
-            e.printStackTrace();
-        }
+        this.remoteRegistryServer.addClient(username, this.remoteClient);
+        remoteClient.log("Client logged in");
     }
 
     // TODO HANDLE LOCAL SERVERS THAT ARE NOT ENDED WE NEED TO MAKE AN OTHER PERSON OF THE TEAM THE LEADER AND ALSO MAYBE THE LEADER CAN GIVE HOS LEADER PRIVILEDGE ON SOMEONE ELSE
@@ -106,12 +107,7 @@ public class Client implements RemoteClient {
             System.out.println(pair.getKey() + " " + pair.getValue());
         }
 
-        //Unbind When logout
-        try {
-            getServerRegistry().unbind("USER_" + this.username);
-        } catch (NotBoundException e) {
-            //Here we do nothing because the person was not logged in
-        }
+        this.remoteRegistryServer.removeClient(this.username);
 
         // As we log out we set Logged out as the name of the window
         this.clientGUI.setTitle("Logged out");
@@ -178,13 +174,10 @@ public class Client implements RemoteClient {
         // Here we get the list of people in the registry and then we return it
         ArrayList<String> onlines = new ArrayList<String>();
 
-        for (String online : getServerRegistry().list()) {
+        //for (String online : getServerRegistry().list()) {
+        for (RemoteClient theClient : this.remoteRegistryServer.getClients()) {
 
-            // Here we need to be carefull because we will get users not local servers and we need to separate them
-            // If the string contains 'USER_' that means we got a user
-            if (online.contains("USER_")) {
-                onlines.add(online.replaceAll("USER_", ""));
-            }
+            onlines.add(theClient.getUsername());
         }
         return onlines;
     }
@@ -193,17 +186,6 @@ public class Client implements RemoteClient {
     public ArrayList<String> getMyConversations() throws RemoteException {
         // Here we get the list of people in the registry and then we return it
         ArrayList<String> conversations = new ArrayList<String>();
-
-        /*
-        for(String online : serverRegistry.list()) {
-
-            // Here we need to be carefull because we will get local servers not users and we need to separate them
-            // If the string contains 'LSERVER_' that means we got a local server
-            if (online.contains("LSERVER_")) {
-                conversations.add(online.replaceAll("LSERVER_", ""));
-            }
-        }
-        */
 
         Iterator it = localServers.entrySet().iterator();
         while (it.hasNext()) {
@@ -232,7 +214,7 @@ public class Client implements RemoteClient {
         for (String f : friend) {
             try {
                 // We need to warn them that we have been added to this conversation with the conversation's id
-                temp = (RemoteClient) getServerRegistry().lookup("USER_" + f);
+                temp = this.remoteRegistryServer.getRemoteClient(f);
                 temp.sendInvitationToServer(randomUUID.toString(), localServer);
 
                 // And add the user
@@ -290,7 +272,7 @@ public class Client implements RemoteClient {
 
         try {
             // We need to warn them that we have been added to this conversation with the conversation's id
-            RemoteClient temp = (RemoteClient) getServerRegistry().lookup("USER_" + user);
+            RemoteClient temp = this.remoteRegistryServer.getRemoteClient(user);
             temp.sendInvitationToServer(conv, this.localServers.get(conv));
 
             // And add the user
@@ -339,9 +321,13 @@ public class Client implements RemoteClient {
         this.localServers = localServers;
     }
 
+    /*
+
     public Registry getServerRegistry() throws RemoteException {
         String registryAdress = "193.48.125.115";
 
         return LocateRegistry.getRegistry(registryAdress, 22222);
     }
+
+     */
 }

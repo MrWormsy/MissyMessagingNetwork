@@ -11,10 +11,10 @@ public class ClientMain {
 
     public static RemoteClient theClient;
 
+    public static String registryAdress = "localhost";
+
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
         // The web adress of the registry server (the only must known adress)
-
-        String registryAdress = "193.48.125.115";
 
         Registry registryServer = LocateRegistry.getRegistry(registryAdress, 22222);
 
