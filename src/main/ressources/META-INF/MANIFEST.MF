@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
-Main-Class: fr.mrwormsy.proj731.chatprojectserver.ClientMain
+Main-Class: fr.mrwormsy.proj731.chatprojectserver.RegistryServerMain
+Class-Path: .
 

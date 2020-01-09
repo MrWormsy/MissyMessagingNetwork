@@ -2,6 +2,7 @@ package fr.mrwormsy.proj731.chatprojectserver;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 
 public interface RemoteLocalServer extends Remote {
@@ -15,4 +16,10 @@ public interface RemoteLocalServer extends Remote {
     boolean containsUser(String theUser) throws RemoteException;
 
     RemoteClient getHost() throws RemoteException;
+
+    Registry getRegistry() throws RemoteException;
+
+    void destroy() throws RemoteException;
+
+    String getId() throws RemoteException;
 }

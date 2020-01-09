@@ -9,19 +9,19 @@ import java.util.TimerTask;
 
 public class ClientMain {
 
-    public static Registry registryServer;
-
     public static RemoteClient theClient;
 
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
         // The web adress of the registry server (the only must known adress)
 
-        String registryAdress = "localhost";
+        String registryAdress = "193.48.125.115";
 
-        registryServer = LocateRegistry.getRegistry(registryAdress, 22222);
+        Registry registryServer = LocateRegistry.getRegistry(registryAdress, 22222);
+
+        System.out.println("THE REGISTRY SERVER " + registryServer);
 
         // We set the registry as a parameter because we will need him in the future (we thus have removed all the occurrences of ClientMain.registryServer...)
-        theClient = new Client(registryServer);
+        theClient = new Client();
 
 
         // Check if the registry is available
@@ -77,10 +77,6 @@ public class ClientMain {
         }
 
         return false;
-    }
-
-    public static Registry getRegistryServer() {
-        return registryServer;
     }
 
     public static RemoteClient getTheClient() {

@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
@@ -13,19 +14,16 @@ import java.util.*;
 public class Client implements RemoteClient {
     // Set of servers that i am the host... (The string is the conversation id : 5W6r8fUsy7rF)
     public HashMap<String, RemoteLocalServer> localServers;
-    RemoteClient remoteClient;
+    public RemoteClient remoteClient;
     private ClientGUI clientGUI;
-    private Registry serverRegistry;
     private String username;
 
     // To send messages to the server we only need the id of the server with who sent the message
     private String password;
 
-    public Client(Registry registryServer) {
+    public Client() {
         this.username = "";
         this.password = "";
-
-        this.serverRegistry = registryServer;
 
         clientGUI = new ClientGUI(this);
         clientGUI.setVisible(true);
@@ -52,7 +50,7 @@ public class Client implements RemoteClient {
         // Check if the username is not already bound
         boolean alreadyBound = true;
         try {
-            serverRegistry.lookup("USER_" + username);
+            getServerRegistry().lookup("USER_" + username);
         } catch (NotBoundException e) {
             alreadyBound = false;
         }
@@ -80,8 +78,8 @@ public class Client implements RemoteClient {
         // HERE WE NEED TO BE CAREFUL BECAUSE WE DO NOT LINK THE USER WITH ITS NAME BUT WITH USER_user's name
 
         try {
-            serverRegistry.bind("USER_" + username, this.remoteClient);
 
+            getServerRegistry().bind("USER_" + username, this.remoteClient);
             remoteClient.log("Client logged in");
 
         } catch (AlreadyBoundException e) {
@@ -94,9 +92,23 @@ public class Client implements RemoteClient {
     @Override
     public void logOut() throws RemoteException {
 
+        // Here we quit all the conversations I am into...
+        Iterator it = localServers.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry) it.next();
+
+            quitConversation((String) pair.getKey());
+        }
+
+        it = localServers.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry) it.next();
+            System.out.println(pair.getKey() + " " + pair.getValue());
+        }
+
         //Unbind When logout
         try {
-            serverRegistry.unbind("USER_" + this.username);
+            getServerRegistry().unbind("USER_" + this.username);
         } catch (NotBoundException e) {
             //Here we do nothing because the person was not logged in
         }
@@ -123,6 +135,12 @@ public class Client implements RemoteClient {
     @Override
     public void sendMessage(String id, String from, String message) throws RemoteException {
         clientGUI.writeMessage(id, from, message);
+
+        Iterator it = localServers.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry) it.next();
+            System.out.println(pair.getKey() + " " + pair.getValue());
+        }
     }
 
     //TODO WE NEED TO REMOVE THE GUYS WHO DECONNECTED AND THE CONVERSATIONS FROM THE MENU
@@ -160,7 +178,7 @@ public class Client implements RemoteClient {
         // Here we get the list of people in the registry and then we return it
         ArrayList<String> onlines = new ArrayList<String>();
 
-        for (String online : serverRegistry.list()) {
+        for (String online : getServerRegistry().list()) {
 
             // Here we need to be carefull because we will get users not local servers and we need to separate them
             // If the string contains 'USER_' that means we got a user
@@ -214,7 +232,7 @@ public class Client implements RemoteClient {
         for (String f : friend) {
             try {
                 // We need to warn them that we have been added to this conversation with the conversation's id
-                temp = (RemoteClient) serverRegistry.lookup("USER_" + f);
+                temp = (RemoteClient) getServerRegistry().lookup("USER_" + f);
                 temp.sendInvitationToServer(randomUUID.toString(), localServer);
 
                 // And add the user
@@ -272,13 +290,28 @@ public class Client implements RemoteClient {
 
         try {
             // We need to warn them that we have been added to this conversation with the conversation's id
-            RemoteClient temp = (RemoteClient) serverRegistry.lookup("USER_" + user);
+            RemoteClient temp = (RemoteClient) getServerRegistry().lookup("USER_" + user);
             temp.sendInvitationToServer(conv, this.localServers.get(conv));
 
             // And add the user
             this.localServers.get(conv).getUsers().add(temp);
         } catch (Exception e) {
             System.out.println("This user does not exists");
+        }
+    }
+
+    // TODO Quit a conversation. If we quit a conversation and we were only two we destroy this conversation, otherwise we make a random user the new leader if it is the leader that left this conversation
+    @Override
+    public void quitConversation(String conv) throws RemoteException {
+
+        RemoteLocalServer theServer = getLocalServers().get(conv);
+
+        // First thing first, we need to check how many they were in this conversation...
+        // If they were two or less we need to destroy this local server...
+        if (theServer.getRegistry().list().length <= 2) {
+            theServer.destroy();
+
+            this.localServers.remove(conv);
         }
     }
 
@@ -306,11 +339,9 @@ public class Client implements RemoteClient {
         this.localServers = localServers;
     }
 
-    public Registry getServerRegistry() {
-        return serverRegistry;
-    }
+    public Registry getServerRegistry() throws RemoteException {
+        String registryAdress = "193.48.125.115";
 
-    public void setServerRegistry(Registry serverRegistry) {
-        this.serverRegistry = serverRegistry;
+        return LocateRegistry.getRegistry(registryAdress, 22222);
     }
 }

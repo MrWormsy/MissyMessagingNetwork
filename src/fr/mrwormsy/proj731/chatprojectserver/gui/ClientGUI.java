@@ -34,6 +34,8 @@ public class ClientGUI extends JFrame {
     private JScrollPane displayScrollPanel;
     private JComboBox<String> onlineUsers;
 
+    private JMenuBar menuBar;
+
     private JMenu peopleMenu;
     private ArrayList<JMenu> peoples;
 
@@ -109,7 +111,7 @@ public class ClientGUI extends JFrame {
 
 
         // Menu menu
-        JMenuBar menuBar = new JMenuBar();
+        menuBar = new JMenuBar();
         this.setJMenuBar(menuBar);
 
         JMenu mJMenu = new JMenu("Menu");
@@ -271,32 +273,6 @@ public class ClientGUI extends JFrame {
     }
 
     public void createConversationsForMenuByName(String conv) {
-
-        /*
-
-        // We create a conv menu
-        JMenuItem dummyConv = new JMenuItem(conv);
-
-        // And we add it to the list of conversations
-        conversations.add(dummyConv);
-
-        // And we add it to the main menu
-        conversationsMenu.add(dummyConv);
-
-        dummyConv.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                // When we choose a conversation we need to set the current one to this one, change the title and show the conversation
-                setCurrentConversation(conv);
-                setTitle(username + " @ " + conv);
-                showConversation(conv);
-            }
-        });
-
-
-         */
-
         // We create a conv menu
         JMenu dummyConv = new JMenu(conv);
 
@@ -358,7 +334,11 @@ public class ClientGUI extends JFrame {
         quitConversation.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                try {
+                    client.quitConversation(conv);
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 

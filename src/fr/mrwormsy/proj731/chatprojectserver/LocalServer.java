@@ -93,6 +93,25 @@ public class LocalServer implements RemoteLocalServer {
         return false;
     }
 
+    @Override
+    public void destroy() throws RemoteException {
+
+        // We first need to kick all the RemoteClient and then destroy the server.
+        for (RemoteClient client : getUsers()) {
+            client.getLocalServers().remove(this.id);
+        }
+
+        // We close the registry
+        UnicastRemoteObject.unexportObject(this.registry,true);
+
+        this.registry = null;
+    }
+
+    @Override
+    public String getId() throws RemoteException {
+        return this.id;
+    }
+
     public ArrayList<RemoteClient> getUsers() {
         return users;
     }
@@ -104,6 +123,12 @@ public class LocalServer implements RemoteLocalServer {
     public RemoteClient getHost() throws RemoteException {
         return host;
     }
+
+    @Override
+    public Registry getRegistry() throws RemoteException {
+        return this.registry;
+    }
+
 
     public void setHost(RemoteClient host) {
         this.host = host;
