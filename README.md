@@ -1,5 +1,3 @@
-# RMIChatProject
+# MissyMessagingNetwork
 
-AIM : Build a decentralized chat over the internet using Java
-
-Quit a conversation
+AIM : Build a decentralized chat over the internet using Java and RMI
