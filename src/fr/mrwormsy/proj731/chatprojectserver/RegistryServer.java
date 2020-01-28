@@ -1,6 +1,7 @@
 package fr.mrwormsy.proj731.chatprojectserver;
 
 import java.rmi.AlreadyBoundException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -15,6 +16,8 @@ public class RegistryServer implements RemoteRegistryServer {
     // The database of clients
     private HashMap<String, RemoteClient> clients;
 
+    public static RemoteRegistryServer stub;
+
     // --- Constructor ---
 
     public RegistryServer() {
@@ -26,7 +29,8 @@ public class RegistryServer implements RemoteRegistryServer {
             this.clients = new HashMap<>();
 
             // Here we need to create this to store the clients
-            registry.bind("clients", UnicastRemoteObject.exportObject(this, 0));
+            stub = (RemoteRegistryServer) UnicastRemoteObject.exportObject(this, 22223);
+            registry.bind("clients", stub);
 
             // We notify that the server is up
             System.out.println("Registry server is ready at port 22222");

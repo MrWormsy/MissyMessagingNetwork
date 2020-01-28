@@ -12,13 +12,15 @@ public class ClientMain {
     public static RemoteClient theClient;
 
     // The address of the regitry server (that will may be rosacorp.net)
-    public static String registryAddress = "rosacorp.net";
+    public static String registryAddress = "51.178.46.76";
 
     // Main method
     public static void main(String[] args) throws RemoteException {
 
         // We get the registry of the refistry server to know if it is online
+        //System.setProperty("java.rmi.server.hostname", registryAddress);
         Registry registryServer = LocateRegistry.getRegistry(registryAddress, 22222);
+
 
         // We create a client instance
         theClient = new Client();

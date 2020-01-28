@@ -8,11 +8,12 @@ public class RegistryServerMain {
     public static void main(String[] args) throws RemoteException {
 
         // We create a registry server
+        System.setProperty("java.rmi.server.hostname","51.178.46.76");
         RegistryServer registryServer = new RegistryServer();
 
-        // We loop indefinitely to have a server running
-        while (true) {
-        }
-    }
+        registryServer.getClients();
 
+        // We loop indefinitely to have a server running
+        while (true) {}
+    }
 }
